@@ -20,7 +20,11 @@ namespace Guests
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
+                    // for a custom port
+                    webBuilder.UseUrls("https://localhost:3000");
                     webBuilder.UseStartup<Startup>();
                 });
+
     }
+
 }

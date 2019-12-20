@@ -23,3 +23,14 @@ D:\GIT\lambdaX\dotnet-backend\Guests\obj\Debug\netcoreapp3.0\Guests.RazorTargetA
 D:\GIT\lambdaX\dotnet-backend\Guests\obj\Debug\netcoreapp3.0\Guests.csproj.CopyComplete
 D:\GIT\lambdaX\dotnet-backend\Guests\obj\Debug\netcoreapp3.0\Guests.dll
 D:\GIT\lambdaX\dotnet-backend\Guests\obj\Debug\netcoreapp3.0\Guests.pdb
+D:\GIT\lambdaX\dotnet-backend\Guests\bin\Debug\netcoreapp3.0\Microsoft.AspNetCore.JsonPatch.dll
+D:\GIT\lambdaX\dotnet-backend\Guests\bin\Debug\netcoreapp3.0\Microsoft.DotNet.PlatformAbstractions.dll
+D:\GIT\lambdaX\dotnet-backend\Guests\bin\Debug\netcoreapp3.0\Microsoft.Extensions.DependencyModel.dll
+D:\GIT\lambdaX\dotnet-backend\Guests\bin\Debug\netcoreapp3.0\Newtonsoft.Json.dll
+D:\GIT\lambdaX\dotnet-backend\Guests\bin\Debug\netcoreapp3.0\Swashbuckle.AspNetCore.Swagger.dll
+D:\GIT\lambdaX\dotnet-backend\Guests\bin\Debug\netcoreapp3.0\Swashbuckle.AspNetCore.SwaggerGen.dll
+D:\GIT\lambdaX\dotnet-backend\Guests\bin\Debug\netcoreapp3.0\Swashbuckle.AspNetCore.SwaggerUI.dll
+D:\GIT\lambdaX\dotnet-backend\Guests\obj\Debug\netcoreapp3.0\Guests.MvcApplicationPartsAssemblyInfo.cs
+D:\GIT\lambdaX\dotnet-backend\Guests\bin\Debug\netcoreapp3.0\Microsoft.AspNetCore.Mvc.NewtonsoftJson.dll
+D:\GIT\lambdaX\dotnet-backend\Guests\bin\Debug\netcoreapp3.0\Microsoft.OpenApi.dll
+D:\GIT\lambdaX\dotnet-backend\Guests\bin\Debug\netcoreapp3.0\Newtonsoft.Json.Bson.dll

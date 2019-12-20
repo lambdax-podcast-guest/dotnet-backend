@@ -31,16 +31,16 @@ namespace Guests
                     Title = "Podcast Guests API", 
                     Version = "v1",
                     Description = "An example of an ASP.NET Core Web API",
-                    TermsOfService = new Uri("https://example.com/terms"),
+                    // TermsOfService = new Uri("https://example.com/terms"),
                     Contact = new OpenApiContact
                     {
-                        Name = "Charlie FN Rogers",
-                        Url = new Uri("http://www.mister-rogers.com"),
+                        Name = "Charlie FN Rogers, Steve Smodish, Brandon Porter, David Freitag",
+                        Url = new Uri("https://lambdax-podcast-guest.github.io/FrontEndView/"),
                     },
                     License = new OpenApiLicense
                     {
-                        Name = "Use under LICX",
-                        Url = new Uri("https://example.com/license"),
+                        Name = "Using MIT Open Source License",
+                        Url = new Uri("https://opensource.org/licenses/MIT"),
                     }
                 })
             );

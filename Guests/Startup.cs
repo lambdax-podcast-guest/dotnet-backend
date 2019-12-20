@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Guests.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -10,8 +11,6 @@ namespace Guests
 {
     public class Startup
     {
-        private const string Name = "GuestsConnection";
-
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -43,6 +42,11 @@ namespace Guests
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+            });
+
+            app.Run(context => {
+                context.Response.Redirect("/api/guests");
+                return Task.CompletedTask;
             });
         }
     }

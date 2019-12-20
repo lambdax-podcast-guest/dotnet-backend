@@ -1,8 +1,11 @@
+using System;
+
 namespace Guests.Models
 {
     public class Guest
     {
-        public int Id { get; set; }
+        public Guest() => Id = new Guid();
+        public Guid Id { get; set; }
 
         public string Name { get; set;}
 

@@ -1,8 +1,9 @@
 {
   "ExpandedNodes": [
     "",
-    "\\Guests"
+    "\\Guests",
+    "\\Guests\\obj"
   ],
-  "SelectedNode": "\\Guests\\Startup.cs",
+  "SelectedNode": "\\Guests\\Guests.csproj",
   "PreviewInSolutionExplorer": false
 }

@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\GIT\\lambdaX\\dotnet-backend\\Guests\\Guests.csproj": {}
+    "D:\\GIT\\LambdaX\\dotnet-backend\\Guests\\Guests.csproj": {}
   },
   "projects": {
-    "D:\\GIT\\lambdaX\\dotnet-backend\\Guests\\Guests.csproj": {
+    "D:\\GIT\\LambdaX\\dotnet-backend\\Guests\\Guests.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\GIT\\lambdaX\\dotnet-backend\\Guests\\Guests.csproj",
+        "projectUniqueName": "D:\\GIT\\LambdaX\\dotnet-backend\\Guests\\Guests.csproj",
         "projectName": "Guests",
-        "projectPath": "D:\\GIT\\lambdaX\\dotnet-backend\\Guests\\Guests.csproj",
+        "projectPath": "D:\\GIT\\LambdaX\\dotnet-backend\\Guests\\Guests.csproj",
         "packagesPath": "C:\\Users\\charl\\.nuget\\packages\\",
-        "outputPath": "D:\\GIT\\lambdaX\\dotnet-backend\\Guests\\obj\\",
+        "outputPath": "D:\\GIT\\LambdaX\\dotnet-backend\\Guests\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Microsoft\\Xamarin\\NuGet\\"

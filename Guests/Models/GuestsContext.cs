@@ -5,7 +5,11 @@ namespace Guests.Models
 {
     public class GuestsContext : DbContext
     {
-        public GuestsContext(DbContextOptions<GuestsContext> options) : base(options){ }
+        public GuestsContext(DbContextOptions<GuestsContext> options)
+            : base(options)
+        {
+            
+        }
 
         protected override void OnModelCreating(ModelBuilder builder) 
             => builder.ApplyConfiguration(new GuestsConfigurations());

@@ -1,4 +1,5 @@
 using System;
+using System.Data.Common;
 using System.Threading.Tasks;
 using Guests.Models;
 using Microsoft.AspNetCore.Builder;
@@ -14,17 +15,31 @@ namespace Guests
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
-        {
-            Configuration = configuration;
-        }
-
-        public IConfiguration Configuration { get; }
+        private string _connection = null;
+        public Startup(IConfiguration configuration) => Configuration = configuration;
+        private IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            // This is how you add in the secrets to the connectionString 
+            DbConnectionStringBuilder builder = new DbConnectionStringBuilder();
+                // Append the secrets to the end of the string
+                builder.Add("User ID", Configuration["HerokuUsername"]);
+                builder.Add("Password", Configuration["HerokuPassword"]);
+                builder.Add("Host", Configuration["HerokuHost"]);
+                builder.Add("Post", Configuration["HerokuPost"]);
+                builder.Add("Database", Configuration["HerokuDatabase"]);
+                builder.Add("Pooling", "true");
+                builder.Add("SSL Mode", "Require");
+                builder.Add("TrustServerCertificate", "True");
+
+                // make the null value of _connection equal the newly built connectionString
+                _connection = builder.ConnectionString;
+
             services.AddMvc();
+            
+            // add swashBuckle through swagger
             services.AddSwaggerGen(options =>
                 options.SwaggerDoc("v1", new OpenApiInfo 
                 { 
@@ -44,8 +59,12 @@ namespace Guests
                     }
                 })
             );
-            // services.AddControllers();
-            services.AddDbContext<GuestsContext>(options => options.UseNpgsql(Configuration.GetConnectionString("DefaultConnection")));
+
+            // Connect to the DB 
+            services.AddDbContext<GuestsContext>(options =>
+            {
+                options.UseNpgsql(_connection);
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -79,7 +98,7 @@ namespace Guests
 
             app.Run(async (context) => {
                 // Sanity check the Server
-                await context.Response.WriteAsync("Server is up!!!");
+                await context.Response.WriteAsync(_connection);
             });
         }
     }

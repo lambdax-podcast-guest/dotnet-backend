@@ -98,7 +98,7 @@ namespace Guests
 
             app.Run(async (context) => {
                 // Sanity check the Server
-                await context.Response.WriteAsync(_connection);
+                await context.Response.WriteAsync("Server is up");
             });
         }
     }

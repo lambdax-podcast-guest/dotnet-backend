@@ -24,12 +24,16 @@ namespace Guests
         {
             // This is how you add in the secrets to the connectionString 
             DbConnectionStringBuilder builder = new DbConnectionStringBuilder();
-                // Get the connectionString from appsetting.json
-                builder.ConnectionString = Configuration.GetConnectionString("DefaultConnection");
                 // Append the secrets to the end of the string
-                builder.Add("Username", Configuration["DbUsername"]);
-                builder.Add("Password", Configuration["Password"]);
-                builder.Add("Database", Configuration["Database"]);
+                builder.Add("User ID", Configuration["HerokuUsername"]);
+                builder.Add("Password", Configuration["HerokuPassword"]);
+                builder.Add("Host", Configuration["HerokuHost"]);
+                builder.Add("Post", Configuration["HerokuPost"]);
+                builder.Add("Database", Configuration["HerokuDatabase"]);
+                builder.Add("Pooling", "true");
+                builder.Add("SSL Mode", "Require");
+                builder.Add("TrustServerCertificate", "True");
+
                 // make the null value of _connection equal the newly built connectionString
                 _connection = builder.ConnectionString;
 
@@ -94,7 +98,7 @@ namespace Guests
 
             app.Run(async (context) => {
                 // Sanity check the Server
-                await context.Response.WriteAsync("The Server Is Up!!!");
+                await context.Response.WriteAsync(_connection);
             });
         }
     }

@@ -44,7 +44,7 @@ namespace Guests.Controllers{
 
         // Put: api/guests/2
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutGuest(int id, Guest input){
+        public async Task<IActionResult> PutGuest(int id, [FromBody] Guest input){
 
             var guest = await Context.Guests.FindAsync(id);
 

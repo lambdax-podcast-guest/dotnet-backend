@@ -62,7 +62,7 @@ namespace Guests.Controllers{
 
         // Post: api/guests
         [HttpPost]
-        public async Task<IActionResult> CreateGuest(Guest input){
+        public async Task<IActionResult> CreateGuest([FromBody] Guest input){
 
             var guest = new Guest(){
                 Name = input.Name,

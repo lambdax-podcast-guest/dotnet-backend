@@ -65,6 +65,14 @@ namespace Guests
             {
                 options.UseNpgsql(_connection);
             });
+
+            //add identity services
+            services.AddAuthentication("Bearer")
+                .AddJwtBearer("Bearer",opts=>{
+                    opts.Authority="http://localhost:5000";
+                    opts.RequireHttpsMetadata=false;
+                    opts.Audience="guests";
+                });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -89,6 +97,7 @@ namespace Guests
 
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>

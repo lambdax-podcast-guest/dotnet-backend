@@ -5,9 +5,11 @@ using System.Threading.Tasks;
 using Guests.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Guests.Controllers{
     [Route("api/[controller]")]
+    [Authorize]
     public class GuestsController : Controller
     {
 

@@ -1,35 +1,32 @@
 {
   "format": 1,
   "restore": {
-    "D:\\GIT\\LambdaX\\dotnet-backend\\Guests\\Guests.csproj": {}
+    "F:\\Projects\\Lambda\\podcast_guest\\back\\dotnet-backend\\Guests\\Guests.csproj": {}
   },
   "projects": {
-    "D:\\GIT\\LambdaX\\dotnet-backend\\Guests\\Guests.csproj": {
+    "F:\\Projects\\Lambda\\podcast_guest\\back\\dotnet-backend\\Guests\\Guests.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\GIT\\LambdaX\\dotnet-backend\\Guests\\Guests.csproj",
+        "projectUniqueName": "F:\\Projects\\Lambda\\podcast_guest\\back\\dotnet-backend\\Guests\\Guests.csproj",
         "projectName": "Guests",
-        "projectPath": "D:\\GIT\\LambdaX\\dotnet-backend\\Guests\\Guests.csproj",
-        "packagesPath": "C:\\Users\\charl\\.nuget\\packages\\",
-        "outputPath": "D:\\GIT\\LambdaX\\dotnet-backend\\Guests\\obj\\",
+        "projectPath": "F:\\Projects\\Lambda\\podcast_guest\\back\\dotnet-backend\\Guests\\Guests.csproj",
+        "packagesPath": "C:\\Users\\Brandon\\.nuget\\packages\\",
+        "outputPath": "F:\\Projects\\Lambda\\podcast_guest\\back\\dotnet-backend\\Guests\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
-          "C:\\Microsoft\\Xamarin\\NuGet\\"
+          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
         ],
         "configFilePaths": [
-          "C:\\Users\\charl\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Xamarin.Offline.config"
+          "C:\\Users\\Brandon\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
-          "netcoreapp3.0"
+          "netcoreapp3.1"
         ],
         "sources": {
-          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
-          "netcoreapp3.0": {
+          "netcoreapp3.1": {
             "projectReferences": {}
           }
         },
@@ -40,8 +37,20 @@
         }
       },
       "frameworks": {
-        "netcoreapp3.0": {
+        "netcoreapp3.1": {
           "dependencies": {
+            "AutoMapper": {
+              "target": "Package",
+              "version": "(, )"
+            },
+            "DotNetEnv": {
+              "target": "Package",
+              "version": "[1.4.0, )"
+            },
+            "Microsoft.AspNetCore.Authentication.JwtBearer": {
+              "target": "Package",
+              "version": "[3.1.1, )"
+            },
             "Microsoft.EntityFrameworkCore.Design": {
               "target": "Package",
               "version": "[2.0.0, )"
@@ -69,16 +78,6 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
-          "downloadDependencies": [
-            {
-              "name": "Microsoft.AspNetCore.App.Ref",
-              "version": "[3.0.1, 3.0.1]"
-            },
-            {
-              "name": "Microsoft.NETCore.App.Host.win-x64",
-              "version": "[3.0.1, 3.0.1]"
-            }
-          ],
           "frameworkReferences": {
             "Microsoft.AspNetCore.App": {
               "privateAssets": "none"

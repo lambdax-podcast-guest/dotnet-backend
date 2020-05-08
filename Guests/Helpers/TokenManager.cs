@@ -7,37 +7,28 @@ using Microsoft.Extensions.Configuration;
 using Guests.Models;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
+using System.Threading.Tasks;
 
 namespace Guests.Helpers
 {
     public class TokenManager
     {
-        public TokenManager(IConfiguration configuration, UserManager<AppUser> userManager)
+        public TokenManager()
         {
-            Configuration = configuration;
-            _userManager = userManager;
         }
-        private IConfiguration Configuration { get; }
-        private UserManager<AppUser> _userManager;
-        
-        public string GenerateToken(AppUser user)
+
+        // must be a better way to do this, we need to await the user's claims, so this needs to be async, and you can only return certain types from async methods, TODO!
+        public static async Task<string> GenerateToken(string[] roles, AppUser user, string jwtKey, string jwtIssuer, UserManager<AppUser> userManager)
         {
-            var mySecurityKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(Configuration["Guests:JwtKey"]));
-
-            var myIssuer = Configuration["Guests:JwtIssuer"];
-
-            var tokenHandler = new JwtSecurityTokenHandler();
-            //var claims = _userManager.GetValidClaims(user);
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                
-                Expires = DateTime.UtcNow.AddDays(1),
-                Issuer = myIssuer,
-                SigningCredentials = new SigningCredentials(mySecurityKey, SecurityAlgorithms.HmacSha256Signature)
-            };
-
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-            return tokenHandler.WriteToken(token);
+            
+            var mySecurityKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(jwtKey));
+            var claims = await userManager.GetClaimsAsync(user);
+            var Token = new JwtSecurityToken(
+                issuer: jwtIssuer,
+                expires: DateTime.Now.AddMinutes(10),
+                claims: claims,
+                signingCredentials: new SigningCredentials(mySecurityKey, SecurityAlgorithms.HmacSha256Signature));
+            return new JwtSecurityTokenHandler().WriteToken(Token);
         }
     }
 }

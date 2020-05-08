@@ -3,6 +3,7 @@ using Guests.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Guests.Helpers;
+using Microsoft.Extensions.Configuration;
 
 namespace Guests.Controllers
 {
@@ -12,15 +13,17 @@ namespace Guests.Controllers
     public class AccountController : ControllerBase
 
     {
-        private readonly UserManager<AppUser> _userManager;
-        private readonly SignInManager<AppUser> _signManager;
-        private readonly RoleManager<IdentityRole> _roleManager;
+        private UserManager<AppUser> _userManager;
+        private SignInManager<AppUser> _signManager;
+        private RoleManager<IdentityRole> _roleManager;
+        private IConfiguration Configuration;
         // we need access to the userManager and signManager from identity, add them to the constructor so we have access to them
-        public AccountController(UserManager<AppUser> userManager, SignInManager<AppUser> signManager, RoleManager<IdentityRole> roleManager)
+        public AccountController(UserManager<AppUser> userManager, SignInManager<AppUser> signManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration)
         {
             _userManager = userManager;
             _signManager = signManager;
             _roleManager = roleManager;
+            Configuration = configuration;
         }
         // Custom InputModel so the client can use these field names
         public class InputModel
@@ -61,7 +64,7 @@ namespace Guests.Controllers
 
                 if (result.Succeeded)
                 {
-                    // add the role to the user
+                    // add the roles to the user
                     
                     foreach (string role in input.Roles)
                     {
@@ -70,8 +73,8 @@ namespace Guests.Controllers
                     // on success login the user, false indicates we won't persist a login cookie, we want to use tokens. CreatedAtAction and BadRequest are from the ControllerBase class
                     await _signManager.SignInAsync(user, false);
 
-                    //var token = TokenManager.GenerateToken(user);
-                    return CreatedAtAction(nameof(Register), new { id = user.Id }, new { id = user.Id, token = "Token here soon!" });
+                    Task<string> token = TokenManager.GenerateToken(input.Roles, user, Configuration["Guests:JwtKey"], Configuration["Guests:JwtIssuer"], _userManager);
+                    return CreatedAtAction(nameof(Register), new { id = user.Id }, new { id = user.Id, token = token.Result });
                 }
                 else
                 {

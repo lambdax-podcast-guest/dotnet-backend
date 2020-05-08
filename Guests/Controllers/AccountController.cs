@@ -2,6 +2,7 @@
 using Guests.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Guests.Helpers;
 
 namespace Guests.Controllers
 {
@@ -28,7 +29,7 @@ namespace Guests.Controllers
             public string LastName { get; set; }
             public string Email { get; set; }
             public string Password { get; set; }
-            public string Role { get; set; }
+            public string[] Roles { get; set; }
             public InputModel() { }
         }
 
@@ -45,11 +46,15 @@ namespace Guests.Controllers
                     Email = input.Email,
                     UserName = input.Email
                 };
-                var roleExists = await _roleManager.RoleExistsAsync(input.Role);
-                if (!roleExists)
+                foreach (string role in input.Roles)
                 {
-                    return BadRequest(new { error = "Invalid Role" });
+                    var roleExists = await _roleManager.RoleExistsAsync(role);
+                    if (!roleExists)
+                    {
+                        return BadRequest(new { error = "Invalid Role" });
+                    }
                 }
+                
 
                 // userManager is from the identity package, it comes with the CreateAsync method, when supplied two args it takes the second one as a password and hashes it. It's success or failure is stored in result
                 var result = await _userManager.CreateAsync(user, input.Password);
@@ -57,9 +62,15 @@ namespace Guests.Controllers
                 if (result.Succeeded)
                 {
                     // add the role to the user
-                    await _userManager.AddToRoleAsync(user, input.Role);
+                    
+                    foreach (string role in input.Roles)
+                    {
+                        await _userManager.AddToRoleAsync(user, role);
+                    }
                     // on success login the user, false indicates we won't persist a login cookie, we want to use tokens. CreatedAtAction and BadRequest are from the ControllerBase class
                     await _signManager.SignInAsync(user, false);
+
+                    //var token = TokenManager.GenerateToken(user);
                     return CreatedAtAction(nameof(Register), new { id = user.Id }, new { id = user.Id, token = "Token here soon!" });
                 }
                 else

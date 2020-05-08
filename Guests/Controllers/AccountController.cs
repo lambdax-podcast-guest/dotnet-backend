@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Guests.Models;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,9 +13,9 @@ namespace Guests.Controllers
     {
         private readonly UserManager<AppUser> _userManager;
         private readonly SignInManager<AppUser> _signManager;
-        private readonly RoleManager<AppUser> _roleManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
         // we need access to the userManager and signManager from identity, add them to the constructor so we have access to them
-        public AccountController(UserManager<AppUser> userManager, SignInManager<AppUser> signManager, RoleManager<AppUser> roleManager)
+        public AccountController(UserManager<AppUser> userManager, SignInManager<AppUser> signManager, RoleManager<IdentityRole> roleManager)
         {
             _userManager = userManager;
             _signManager = signManager;
@@ -52,17 +48,19 @@ namespace Guests.Controllers
                 var roleExists = await _roleManager.RoleExistsAsync(input.Role);
                 if (!roleExists)
                 {
-                    return BadRequest();
+                    return BadRequest(new { error = "Invalid Role" });
                 }
-                
+
                 // userManager is from the identity package, it comes with the CreateAsync method, when supplied two args it takes the second one as a password and hashes it. It's success or failure is stored in result
                 var result = await _userManager.CreateAsync(user, input.Password);
 
                 if (result.Succeeded)
                 {
+                    // add the role to the user
+                    await _userManager.AddToRoleAsync(user, input.Role);
                     // on success login the user, false indicates we won't persist a login cookie, we want to use tokens. CreatedAtAction and BadRequest are from the ControllerBase class
                     await _signManager.SignInAsync(user, false);
-                    return CreatedAtAction(nameof(Register), new { id = user.Id }, user);
+                    return CreatedAtAction(nameof(Register), new { id = user.Id }, new { id = user.Id, token = "Token here soon!" });
                 }
                 else
                 {

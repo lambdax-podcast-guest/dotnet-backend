@@ -46,7 +46,7 @@ namespace Guests.Controllers
                     FirstName = input.FirstName,
                     LastName = input.LastName,
                     Email = input.Email,
-                    UserName = input.UserName
+                    UserName = input.Email
                 };
                 // userManager is from the identity package, it comes with the CreateAsync method, when supplied two args it takes the second one as a password and hashes it. It's success or failure is stored in result
                 var result = await _userManager.CreateAsync(user, input.Password);

@@ -73,7 +73,10 @@ namespace Guests
             });
 
             // Add Identity
-            services.AddIdentity<AppUser, IdentityRole>()
+            services.AddIdentity<AppUser, IdentityRole>(options =>
+            {
+                options.User.RequireUniqueEmail = true;
+            })
                 .AddRoles<IdentityRole>()
                 .AddEntityFrameworkStores<GuestsContext>()
                 .AddDefaultTokenProviders();

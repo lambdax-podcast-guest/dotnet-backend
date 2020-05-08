@@ -4,12 +4,12 @@ using Guests.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
-using Microsoft.AspNetCore.Identity;
 
 namespace Guests
 {
@@ -22,6 +22,8 @@ namespace Guests
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddCors(options => options.AddPolicy("AllowAll",
+               builder => builder.WithOrigins("http://localhost:8080").AllowAnyHeader().AllowAnyMethod()));
             // This is how you add in the secrets to the connectionString 
             DbConnectionStringBuilder builder = new DbConnectionStringBuilder();
             // Append the secrets to the end of the string
@@ -41,23 +43,23 @@ namespace Guests
 
             // add swashBuckle through swagger
             services.AddSwaggerGen(options =>
-                options.SwaggerDoc("v1", new OpenApiInfo
-                {
-                    Title = "Podcast Guests API",
-                    Version = "v1",
-                    Description = "An example of an ASP.NET Core Web API",
-                    // TermsOfService = new Uri("https://example.com/terms"),
-                    Contact = new OpenApiContact
-                    {
-                        Name = "Charlie FN Rogers, Steve Smodish, Brandon Porter, David Freitag",
-                        Url = new Uri("https://lambdax-podcast-guest.github.io/FrontEndView/"),
-                    },
-                    License = new OpenApiLicense
-                    {
-                        Name = "Using MIT Open Source License",
-                        Url = new Uri("https://opensource.org/licenses/MIT"),
-                    }
-                })
+               options.SwaggerDoc("v1", new OpenApiInfo
+               {
+                   Title = "Podcast Guests API",
+                   Version = "v1",
+                   Description = "An example of an ASP.NET Core Web API",
+                   // TermsOfService = new Uri("https://example.com/terms"),
+                   Contact = new OpenApiContact
+                   {
+                       Name = "Charlie FN Rogers, Steve Smodish, Brandon Porter, David Freitag",
+                       Url = new Uri("https://lambdax-podcast-guest.github.io/FrontEndView/"),
+                   },
+                   License = new OpenApiLicense
+                   {
+                       Name = "Using MIT Open Source License",
+                       Url = new Uri("https://opensource.org/licenses/MIT"),
+                   }
+               })
             );
 
             // Connect to the DB 
@@ -76,6 +78,7 @@ namespace Guests
         {
             if (env.IsDevelopment())
             {
+                app.UseCors("AllowAll");
                 app.UseDeveloperExceptionPage();
             }
 
@@ -100,11 +103,6 @@ namespace Guests
                 endpoints.MapControllers();
             });
 
-            app.Run(async (context) =>
-            {
-                // Sanity check the Server
-                await context.Response.WriteAsync("Server is up, let's rock");
-            });
         }
     }
 

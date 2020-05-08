@@ -73,7 +73,8 @@ namespace Guests
             });
 
             // Add Identity
-            services.AddIdentity<AppUser, IdentityRole<string>>()
+            services.AddIdentity<AppUser, IdentityRole>()
+                .AddRoles<IdentityRole>()
                 .AddEntityFrameworkStores<GuestsContext>()
                 .AddDefaultTokenProviders();
 

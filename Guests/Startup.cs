@@ -14,7 +14,6 @@ using Microsoft.OpenApi.Models;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 
-
 namespace Guests
 {
     public class Startup
@@ -105,7 +104,7 @@ namespace Guests
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, RoleManager<IdentityRole> _roleManager)
         {
             if (env.IsDevelopment())
             {

@@ -16,7 +16,7 @@ namespace Guests.Models
         protected override void OnModelCreating(ModelBuilder builder)
         {
             builder.ApplyConfiguration(new GuestsConfigurations());
-            base.OnModelCreating(builder);                                        
+            base.OnModelCreating(builder);
         }
 
         public DbSet<Guest> Guests { get; set; }

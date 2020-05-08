@@ -74,6 +74,7 @@ namespace Guests.Controllers
                     await _signManager.SignInAsync(user, false);
 
                     Task<string> token = TokenManager.GenerateToken(input.Roles, user, Configuration["Guests:JwtKey"], Configuration["Guests:JwtIssuer"], _userManager);
+
                     return CreatedAtAction(nameof(Register), new { id = user.Id }, new { id = user.Id, token = token.Result });
                 }
                 else

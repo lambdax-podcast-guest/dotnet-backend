@@ -48,8 +48,8 @@ namespace Guests
                    Title = "Podcast Guests API",
                    Version = "v1",
                    Description = "An example of an ASP.NET Core Web API",
-                   // TermsOfService = new Uri("https://example.com/terms"),
-                   Contact = new OpenApiContact
+                    // TermsOfService = new Uri("https://example.com/terms"),
+                    Contact = new OpenApiContact
                    {
                        Name = "Charlie FN Rogers, Steve Smodish, Brandon Porter, David Freitag",
                        Url = new Uri("https://lambdax-podcast-guest.github.io/FrontEndView/"),
@@ -90,6 +90,7 @@ namespace Guests
             app.UseSwaggerUI(c =>
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+                c.RoutePrefix = string.Empty;
             });
 
             app.UseHttpsRedirection();

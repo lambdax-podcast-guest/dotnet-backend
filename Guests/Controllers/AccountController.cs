@@ -17,11 +17,13 @@ namespace Guests.Controllers
     {
         private readonly UserManager<AppUser> _userManager;
         private readonly SignInManager<AppUser> _signManager;
+        private readonly RoleManager<AppUser> _roleManager;
         // we need access to the userManager and signManager from identity, add them to the constructor so we have access to them
-        public AccountController(UserManager<AppUser> userManager, SignInManager<AppUser> signManager)
+        public AccountController(UserManager<AppUser> userManager, SignInManager<AppUser> signManager, RoleManager<AppUser> roleManager)
         {
             _userManager = userManager;
             _signManager = signManager;
+            _roleManager = roleManager;
         }
         // Custom InputModel so the client can use these field names
         public class InputModel
@@ -31,7 +33,6 @@ namespace Guests.Controllers
             public string Email { get; set; }
             public string Password { get; set; }
             public string Role { get; set; }
-            public string UserName { get; set; }
             public InputModel() { }
         }
 
@@ -48,6 +49,12 @@ namespace Guests.Controllers
                     Email = input.Email,
                     UserName = input.Email
                 };
+                var roleExists = await _roleManager.RoleExistsAsync(input.Role);
+                if (!roleExists)
+                {
+                    return BadRequest();
+                }
+                
                 // userManager is from the identity package, it comes with the CreateAsync method, when supplied two args it takes the second one as a password and hashes it. It's success or failure is stored in result
                 var result = await _userManager.CreateAsync(user, input.Password);
 

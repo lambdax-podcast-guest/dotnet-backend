@@ -1,4 +1,3 @@
-using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace Guests.Models
@@ -9,11 +8,11 @@ namespace Guests.Models
 
         [Required]
         [StringLength(200)]
-        public string Name { get; set;}
+        public string Name { get; set; }
 
         [Required]
         [StringLength(200)]
-        public string Email { get; set;}
+        public string Email { get; set; }
 
     }
 }

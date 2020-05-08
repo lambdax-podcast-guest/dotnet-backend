@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using Guests.Models.ModelsConfig;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 
@@ -11,7 +10,7 @@ namespace Guests.Models
         public GuestsContext(DbContextOptions<GuestsContext> options)
             : base(options)
         {
-            
+
         }
 
         protected override void OnModelCreating(ModelBuilder builder)

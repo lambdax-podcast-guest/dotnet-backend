@@ -1,6 +1,5 @@
 using System;
 using System.Data.Common;
-using System.Threading.Tasks;
 using Guests.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -11,7 +10,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.Identity;
-
 
 namespace Guests
 {
@@ -26,26 +24,26 @@ namespace Guests
         {
             // This is how you add in the secrets to the connectionString 
             DbConnectionStringBuilder builder = new DbConnectionStringBuilder();
-                // Append the secrets to the end of the string
-                builder.Add("User ID", Configuration["HerokuUsername"]);
-                builder.Add("Password", Configuration["HerokuPassword"]);
-                builder.Add("Host", Configuration["HerokuHost"]);
-                builder.Add("Post", Configuration["HerokuPost"]);
-                builder.Add("Database", Configuration["HerokuDatabase"]);
-                builder.Add("Pooling", "true");
-                builder.Add("SSL Mode", "Require");
-                builder.Add("TrustServerCertificate", "True");
+            // Append the secrets to the end of the string
+            builder.Add("User ID", Configuration["HerokuUsername"]);
+            builder.Add("Password", Configuration["HerokuPassword"]);
+            builder.Add("Host", Configuration["HerokuHost"]);
+            builder.Add("Post", Configuration["HerokuPost"]);
+            builder.Add("Database", Configuration["HerokuDatabase"]);
+            builder.Add("Pooling", "true");
+            builder.Add("SSL Mode", "Require");
+            builder.Add("TrustServerCertificate", "True");
 
-                // make the null value of _connection equal the newly built connectionString
-                _connection = builder.ConnectionString;
+            // make the null value of _connection equal the newly built connectionString
+            _connection = builder.ConnectionString;
 
             services.AddMvc();
-            
+
             // add swashBuckle through swagger
             services.AddSwaggerGen(options =>
-                options.SwaggerDoc("v1", new OpenApiInfo 
-                { 
-                    Title = "Podcast Guests API", 
+                options.SwaggerDoc("v1", new OpenApiInfo
+                {
+                    Title = "Podcast Guests API",
                     Version = "v1",
                     Description = "An example of an ASP.NET Core Web API",
                     // TermsOfService = new Uri("https://example.com/terms"),
@@ -70,7 +68,7 @@ namespace Guests
 
             services.AddIdentity<AppUser, IdentityRole<string>>()
                 .AddEntityFrameworkStores<GuestsContext>();
-                //.AddDefaultTokenProviders();
+            //.AddDefaultTokenProviders();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -80,7 +78,7 @@ namespace Guests
             {
                 app.UseDeveloperExceptionPage();
             }
-            
+
             // Enable middleware to serve generated Swagger as a JSON endpoint.
             app.UseSwagger();
 
@@ -102,7 +100,8 @@ namespace Guests
                 endpoints.MapControllers();
             });
 
-            app.Run(async (context) => {
+            app.Run(async (context) =>
+            {
                 // Sanity check the Server
                 await context.Response.WriteAsync("Server is up, let's rock");
             });

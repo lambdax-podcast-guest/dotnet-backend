@@ -8,6 +8,7 @@ using Guests.Models;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace Guests.Helpers
 {
@@ -23,27 +24,20 @@ namespace Guests.Helpers
             
             var mySecurityKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(jwtKey));
             
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var tokenDescriptor = new SecurityTokenDescriptor
+            var claims = new List<Claim>();
+            foreach (string role in roles)
             {
-                Subject = new ClaimsIdentity(new Claim[]
-                {
-                    new Claim(ClaimTypes.Name, user.Id.ToString())
-                }),
-                Expires = DateTime.UtcNow.AddDays(1),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(Encoding.ASCII.GetBytes(jwtKey)), SecurityAlgorithms.HmacSha256Signature)
-            };
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-            return tokenHandler.WriteToken(token);
+                claims.Add(new Claim("roles", role));
+            }
+            
+            var Token = new JwtSecurityToken(
+               issuer: jwtIssuer,
+               expires: DateTime.UtcNow.AddDays(1),
+               claims: claims,
+               signingCredentials: new SigningCredentials(mySecurityKey, SecurityAlgorithms.HmacSha256));
 
-            // trying to figure out how to use the claims!
-            // var claims = await userManager.GetClaimsAsync(user);
-            // var Token = new JwtSecurityToken(
-            //    issuer: jwtIssuer,
-            //    expires: DateTime.Now.AddDays(1),
-            //    claims: claims,
-            //    signingCredentials: new SigningCredentials(mySecurityKey, SecurityAlgorithms.HmacSha256Signature));
-            //return new JwtSecurityTokenHandler().WriteToken(Token);
+            return new JwtSecurityTokenHandler().WriteToken(Token);
+
         }
     }
 }

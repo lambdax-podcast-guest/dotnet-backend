@@ -83,6 +83,9 @@ namespace Guests
 
             // ===== Add Jwt Authentication ========
             JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear(); // => remove default claims
+
+
+
             services
                 .AddAuthentication(options =>
                 {
@@ -98,8 +101,8 @@ namespace Guests
                     options.TokenValidationParameters = new TokenValidationParameters()
                     {
                         ValidIssuer = Configuration["Guests:JwtIssuer"],
-                        ValidAudience = Configuration["Guests:JwtIssuer"],
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Guests:JwtKey"]))
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Guests:JwtKey"])),
+                        ValidateAudience = false
                     };
                 });
         }

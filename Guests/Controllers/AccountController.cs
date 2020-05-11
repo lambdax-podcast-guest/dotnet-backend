@@ -2,6 +2,8 @@
 using Guests.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Guests.Helpers;
+using Microsoft.Extensions.Configuration;
 
 namespace Guests.Controllers
 {
@@ -11,15 +13,17 @@ namespace Guests.Controllers
     public class AccountController : ControllerBase
 
     {
-        private readonly UserManager<AppUser> _userManager;
-        private readonly SignInManager<AppUser> _signManager;
-        private readonly RoleManager<IdentityRole> _roleManager;
+        private UserManager<AppUser> _userManager;
+        private SignInManager<AppUser> _signManager;
+        private RoleManager<IdentityRole> _roleManager;
+        private IConfiguration Configuration;
         // we need access to the userManager and signManager from identity, add them to the constructor so we have access to them
-        public AccountController(UserManager<AppUser> userManager, SignInManager<AppUser> signManager, RoleManager<IdentityRole> roleManager)
+        public AccountController(UserManager<AppUser> userManager, SignInManager<AppUser> signManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration)
         {
             _userManager = userManager;
             _signManager = signManager;
             _roleManager = roleManager;
+            Configuration = configuration;
         }
         // Custom InputModel so the client can use these field names
         public class InputModel
@@ -28,7 +32,7 @@ namespace Guests.Controllers
             public string LastName { get; set; }
             public string Email { get; set; }
             public string Password { get; set; }
-            public string Role { get; set; }
+            public string[] Roles { get; set; }
             public InputModel() { }
         }
 
@@ -45,22 +49,33 @@ namespace Guests.Controllers
                     Email = input.Email,
                     UserName = input.Email
                 };
-                var roleExists = await _roleManager.RoleExistsAsync(input.Role);
-                if (!roleExists)
+                foreach (string role in input.Roles)
                 {
-                    return BadRequest(new { error = "Invalid Role" });
+                    var roleExists = await _roleManager.RoleExistsAsync(role);
+                    if (!roleExists)
+                    {
+                        return BadRequest(new { error = "Invalid Role" });
+                    }
                 }
+                
 
                 // userManager is from the identity package, it comes with the CreateAsync method, when supplied two args it takes the second one as a password and hashes it. It's success or failure is stored in result
                 var result = await _userManager.CreateAsync(user, input.Password);
 
                 if (result.Succeeded)
                 {
-                    // add the role to the user
-                    await _userManager.AddToRoleAsync(user, input.Role);
+                    // add the roles to the user
+                    
+                    foreach (string role in input.Roles)
+                    {
+                        await _userManager.AddToRoleAsync(user, role);
+                    }
                     // on success login the user, false indicates we won't persist a login cookie, we want to use tokens. CreatedAtAction and BadRequest are from the ControllerBase class
                     await _signManager.SignInAsync(user, false);
-                    return CreatedAtAction(nameof(Register), new { id = user.Id }, new { id = user.Id, token = "Token here soon!" });
+
+                    Task<string> token = TokenManager.GenerateToken(input.Roles, user, Configuration["Guests:JwtKey"], Configuration["Guests:JwtIssuer"], _userManager);
+
+                    return CreatedAtAction(nameof(Register), new { id = user.Id }, new { id = user.Id, token = token.Result });
                 }
                 else
                 {

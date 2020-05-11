@@ -1,6 +1,8 @@
 using System;
 using System.Data.Common;
+using System.IdentityModel.Tokens.Jwt;
 using System.Text;
+using Guests.Helpers;
 using Guests.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -10,9 +12,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.OpenApi.Models;
 using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
+using Microsoft.OpenApi.Models;
 
 namespace Guests
 {
@@ -51,8 +52,8 @@ namespace Guests
                    Title = "Podcast Guests API",
                    Version = "v1",
                    Description = "An example of an ASP.NET Core Web API",
-                   // TermsOfService = new Uri("https://example.com/terms"),
-                   Contact = new OpenApiContact
+                    // TermsOfService = new Uri("https://example.com/terms"),
+                    Contact = new OpenApiContact
                    {
                        Name = "Charlie FN Rogers, Steve Smodish, Brandon Porter, David Freitag",
                        Url = new Uri("https://lambdax-podcast-guest.github.io/FrontEndView/"),
@@ -135,6 +136,8 @@ namespace Guests
             {
                 endpoints.MapControllers();
             });
+
+            DataInitializer.SeedData(_roleManager);
 
         }
     }

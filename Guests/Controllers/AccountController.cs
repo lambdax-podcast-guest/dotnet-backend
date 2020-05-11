@@ -4,10 +4,12 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Guests.Helpers;
 using Microsoft.Extensions.Configuration;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Guests.Controllers
 {
 
+    [Authorize]
     [Route("api/[controller]/[action]")]
     [ApiController]
     public class AccountController : ControllerBase
@@ -43,7 +45,8 @@ namespace Guests.Controllers
             if (ModelState.IsValid)
             {
                 // if the input model is valid, as in all the fields were initialized with the correct types, create a new app user with that info
-                var user = new AppUser() {
+                var user = new AppUser()
+                {
                     FirstName = input.FirstName,
                     LastName = input.LastName,
                     Email = input.Email,
@@ -57,7 +60,7 @@ namespace Guests.Controllers
                         return BadRequest(new { error = "Invalid Role" });
                     }
                 }
-                
+
 
                 // userManager is from the identity package, it comes with the CreateAsync method, when supplied two args it takes the second one as a password and hashes it. It's success or failure is stored in result
                 var result = await _userManager.CreateAsync(user, input.Password);
@@ -65,7 +68,7 @@ namespace Guests.Controllers
                 if (result.Succeeded)
                 {
                     // add the roles to the user
-                    
+
                     foreach (string role in input.Roles)
                     {
                         await _userManager.AddToRoleAsync(user, role);
@@ -73,9 +76,9 @@ namespace Guests.Controllers
                     // on success login the user, false indicates we won't persist a login cookie, we want to use tokens. CreatedAtAction and BadRequest are from the ControllerBase class
                     await _signManager.SignInAsync(user, false);
 
-                    Task<string> token = TokenManager.GenerateToken(input.Roles, user, Configuration["Guests:JwtKey"], Configuration["Guests:JwtIssuer"], _userManager);
+                    string token = TokenManager.GenerateToken(input.Roles, user, Configuration["Guests:JwtKey"], Configuration["Guests:JwtIssuer"], _userManager);
 
-                    return CreatedAtAction(nameof(Register), new { id = user.Id }, new { id = user.Id, token = token.Result });
+                    return CreatedAtAction(nameof(Register), new { id = user.Id }, new { id = user.Id, token = token });
                 }
                 else
                 {

@@ -16,11 +16,8 @@ namespace Guests.Helpers
         public TokenManager() { }
 
         // must be a better way to do this than Task<string>, we need to await the user's claims, so this needs to be async, and you can only return certain types from async methods, TODO!
-        public static Task<string> GenerateToken(string[] roles, AppUser user, string jwtKey, string jwtIssuer, UserManager<AppUser> userManager)
+        public static string GenerateToken(string[] roles, AppUser user, string jwtKey, string jwtIssuer, UserManager<AppUser> userManager)
         {
-
-            return Task.Run(() =>
-            {
                 var mySecurityKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(jwtKey));
 
                 var claims = new List<Claim>();
@@ -36,7 +33,6 @@ namespace Guests.Helpers
                     signingCredentials: new SigningCredentials(mySecurityKey, SecurityAlgorithms.HmacSha256));
 
                 return new JwtSecurityTokenHandler().WriteToken(Token);
-            });
         }
     }
 }

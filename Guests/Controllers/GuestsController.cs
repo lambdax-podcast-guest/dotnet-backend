@@ -17,6 +17,8 @@ namespace Guests.Controllers
             => Context = context;
 
         // GET: api/guests
+        // this route is for guests only, to switch to hosts only use IsHost, to make this a basic protected route just use Authorize with no policy
+        [Authorize(Policy = "IsGuest")]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Guest>>> GetGuests()
         {

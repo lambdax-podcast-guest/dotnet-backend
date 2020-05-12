@@ -18,7 +18,6 @@ namespace Guests.Controllers
             => Context = context;
 
         // GET: api/guests
-        [Authorize(Roles = "Host")]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Guest>>> GetGuests()
         {

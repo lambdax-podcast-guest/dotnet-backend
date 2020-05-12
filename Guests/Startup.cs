@@ -103,19 +103,6 @@ namespace Guests
                         ValidateAudience = false
                     };
                 });
-
-            // set up claim policies
-            services.AddAuthorization(options =>
-            {
-                options.AddPolicy("IsHost", policy =>
-                {
-                    policy.RequireClaim("Roles", "Host");
-                });
-                options.AddPolicy("IsGuest", policy =>
-                {
-                    policy.RequireClaim("Roles", "Guest");
-                });
-            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

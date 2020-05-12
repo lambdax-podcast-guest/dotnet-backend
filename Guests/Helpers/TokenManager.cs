@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -13,25 +14,31 @@ namespace Guests.Helpers
 {
     public class TokenManager
     {
-        public TokenManager() { }
-
-        public static string GenerateToken(string[] roles, AppUser user, string jwtKey, string jwtIssuer, UserManager<AppUser> userManager)
+        private static IConfiguration config;
+        // this is accessing the internal static configuration within Startup
+        public TokenManager(IConfiguration configuration)
         {
-            var mySecurityKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(jwtKey));
+            config = configuration;
+        }
 
-            var claims = new List<Claim>();
-            foreach (string role in roles)
-            {
-                claims.Add(new Claim("roles", role));
-            }
+        // I removed the extra props for this function.
+        public static string GenerateToken(string[] roles, AppUser user)
+        {
+            var claimsIdentity = new ClaimsIdentity(roles.Select(role => new Claim(ClaimTypes.Role, role)));
 
-            var Token = new JwtSecurityToken(
-                issuer: jwtIssuer,
-                expires: DateTime.UtcNow.AddDays(1),
-                claims: claims,
-                signingCredentials: new SigningCredentials(mySecurityKey, SecurityAlgorithms.HmacSha256));
+            var handler = new JwtSecurityTokenHandler();
 
-            return new JwtSecurityTokenHandler().WriteToken(Token);
+            var token = new JwtSecurityToken
+            (
+                issuer: Startup.Configuration["Guests:JwtIssuer"],
+                // access the claims within the claims identity
+                claims: claimsIdentity.Claims,
+                notBefore: DateTime.Now,
+                expires: DateTime.Now.AddDays(1),
+                signingCredentials: new SigningCredentials(new SymmetricSecurityKey(Encoding.ASCII.GetBytes(Startup.Configuration["Guests:JwtKey"])), SecurityAlgorithms.HmacSha256)
+            );
+
+            return handler.WriteToken(token);
         }
     }
 }

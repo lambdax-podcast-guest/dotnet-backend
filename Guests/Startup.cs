@@ -53,7 +53,7 @@ namespace Guests
                {
                    Title = "Podcast Guests API",
                    Version = "v1",
-                   Description = "An example of an ASP.NET Core Web API",
+                   Description = "Backend for Podcast Guests",
                    // TermsOfService = new Uri("https://example.com/terms"),
                    Contact = new OpenApiContact
                    {

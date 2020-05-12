@@ -8,8 +8,6 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace Guests.Controllers
 {
-
-    [Authorize]
     [Route("api/[controller]/[action]")]
     [ApiController]
     public class AccountController : ControllerBase
@@ -50,6 +48,7 @@ namespace Guests.Controllers
                     Email = input.Email,
                     UserName = input.Email
                 };
+                // verify the roles on the body exist
                 foreach (string role in input.Roles)
                 {
                     var roleExists = await _roleManager.RoleExistsAsync(role);

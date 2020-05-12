@@ -85,7 +85,6 @@ namespace Guests
 
             // ===== Add Jwt Authentication ========
             JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear(); // => remove default claims
-
             services
                 .AddAuthentication(options =>
                 {

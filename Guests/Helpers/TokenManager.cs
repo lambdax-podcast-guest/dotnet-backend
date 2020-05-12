@@ -14,11 +14,11 @@ namespace Guests.Helpers
 {
     public class TokenManager
     {
-        private static IConfiguration config;
-        // this is accessing the internal static configuration within Startup
+        
+        
         public TokenManager(IConfiguration configuration)
         {
-            config = configuration;
+            
         }
 
         // I removed the extra props for this function.

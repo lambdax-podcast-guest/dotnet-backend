@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -13,26 +14,27 @@ namespace Guests.Helpers
 {
     public class TokenManager
     {
-        public TokenManager() { }
-
-        // must be a better way to do this than Task<string>, we need to await the user's claims, so this needs to be async, and you can only return certain types from async methods, TODO!
-        public static string GenerateToken(string[] roles, AppUser user, string jwtKey, string jwtIssuer, UserManager<AppUser> userManager)
+        private static IConfiguration config;
+        public TokenManager(IConfiguration configuration)
         {
-                var mySecurityKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(jwtKey));
+            config = configuration;
+        }
+        public static string GenerateToken(string[] roles, AppUser user)
+        {
+            var claimsIdentity = new ClaimsIdentity(roles.Select(role => new Claim(ClaimTypes.Role, role)));
 
-                var claims = new List<Claim>();
-                foreach (string role in roles)
-                {
-                    claims.Add(new Claim("roles", role));
-                }
+            var handler = new JwtSecurityTokenHandler();
 
-                var Token = new JwtSecurityToken(
-                    issuer: jwtIssuer,
-                    expires: DateTime.UtcNow.AddDays(1),
-                    claims: claims,
-                    signingCredentials: new SigningCredentials(mySecurityKey, SecurityAlgorithms.HmacSha256));
+            var securityToken = new JwtSecurityToken
+            (
+                issuer: Startup.Configuration["Guests:JwtIssuer"],
+                claims: claimsIdentity.Claims,
+                notBefore: DateTime.Now,
+                expires: DateTime.Now.AddDays(1),
+                signingCredentials: new SigningCredentials(new SymmetricSecurityKey(Encoding.ASCII.GetBytes(Startup.Configuration["Guests:JwtKey"])), SecurityAlgorithms.HmacSha256)
+            );
 
-                return new JwtSecurityTokenHandler().WriteToken(Token);
+            return handler.WriteToken(securityToken);
         }
     }
 }

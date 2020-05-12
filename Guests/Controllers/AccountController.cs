@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Guests.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -61,7 +62,6 @@ namespace Guests.Controllers
                     }
                 }
 
-
                 // userManager is from the identity package, it comes with the CreateAsync method, when supplied two args it takes the second one as a password and hashes it. It's success or failure is stored in result
                 var result = await _userManager.CreateAsync(user, input.Password);
 
@@ -76,7 +76,7 @@ namespace Guests.Controllers
                     // on success login the user, false indicates we won't persist a login cookie, we want to use tokens. CreatedAtAction and BadRequest are from the ControllerBase class
                     await _signManager.SignInAsync(user, false);
 
-                    string token = TokenManager.GenerateToken(input.Roles, user, Configuration["Guests:JwtKey"], Configuration["Guests:JwtIssuer"], _userManager);
+                    string token = TokenManager.GenerateToken(input.Roles, user);
 
                     return CreatedAtAction(nameof(Register), new { id = user.Id }, new { id = user.Id, token = token });
                 }

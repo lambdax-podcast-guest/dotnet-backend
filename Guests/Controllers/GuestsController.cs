@@ -4,6 +4,7 @@ using Guests.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
 
 namespace Guests.Controllers
 {
@@ -17,6 +18,7 @@ namespace Guests.Controllers
             => Context = context;
 
         // GET: api/guests
+        [Authorize(Roles = "Host")]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Guest>>> GetGuests()
         {

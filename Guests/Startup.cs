@@ -21,7 +21,7 @@ namespace Guests
     {
         private string _connection = null;
         public Startup(IConfiguration configuration) => Configuration = configuration;
-        private IConfiguration Configuration { get; }
+        internal static IConfiguration Configuration { get; private set; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -52,8 +52,8 @@ namespace Guests
                    Title = "Podcast Guests API",
                    Version = "v1",
                    Description = "An example of an ASP.NET Core Web API",
-                    // TermsOfService = new Uri("https://example.com/terms"),
-                    Contact = new OpenApiContact
+                   // TermsOfService = new Uri("https://example.com/terms"),
+                   Contact = new OpenApiContact
                    {
                        Name = "Charlie FN Rogers, Steve Smodish, Brandon Porter, David Freitag",
                        Url = new Uri("https://lambdax-podcast-guest.github.io/FrontEndView/"),
@@ -84,24 +84,21 @@ namespace Guests
             // ===== Add Jwt Authentication ========
             JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear(); // => remove default claims
 
-
-
             services
                 .AddAuthentication(options =>
                 {
                     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                     options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
                     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-
                 })
                 .AddJwtBearer(options =>
                 {
                     options.RequireHttpsMetadata = false;
                     options.SaveToken = true;
-                    options.TokenValidationParameters = new TokenValidationParameters()
+                    options.TokenValidationParameters = new TokenValidationParameters
                     {
                         ValidIssuer = Configuration["Guests:JwtIssuer"],
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Guests:JwtKey"])),
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(Configuration["Guests:JwtKey"])),
                         ValidateAudience = false
                     };
                 });

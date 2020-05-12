@@ -21,6 +21,8 @@ namespace Guests
     {
         private string _connection = null;
         public Startup(IConfiguration configuration) => Configuration = configuration;
+
+        // internal and static for dependency injection within any child
         internal static IConfiguration Configuration { get; private set; }
 
         // This method gets called by the runtime. Use this method to add services to the container.

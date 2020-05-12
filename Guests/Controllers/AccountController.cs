@@ -68,11 +68,11 @@ namespace Guests.Controllers
                 if (result.Succeeded)
                 {
                     // add the roles to the user
-
                     foreach (string role in input.Roles)
                     {
                         await _userManager.AddToRoleAsync(user, role);
                     }
+
                     // on success login the user, false indicates we won't persist a login cookie, we want to use tokens. CreatedAtAction and BadRequest are from the ControllerBase class
                     await _signManager.SignInAsync(user, false);
 
@@ -89,6 +89,7 @@ namespace Guests.Controllers
                     return BadRequest(ModelState);
                 }
             }
+
             // if the model state was never valid return the modelstate errors
             return BadRequest(ModelState);
         }

@@ -71,7 +71,8 @@ namespace Guests
             // Connect to the DB 
             services.AddDbContext<GuestsContext>(options =>
             {
-                options.UseNpgsql(_connection);
+                options.UseNpgsql(_connection)
+                .UseSnakeCaseNamingConvention();
             });
 
             // Add Identity

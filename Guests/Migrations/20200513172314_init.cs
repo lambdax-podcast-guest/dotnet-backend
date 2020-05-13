@@ -206,6 +206,34 @@ namespace Guests.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "guest_topics",
+                columns: table => new
+                {
+                    id = table.Column<int>(nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    created_at = table.Column<DateTime>(nullable: false),
+                    updated_at = table.Column<DateTime>(nullable: false),
+                    guest_id = table.Column<string>(nullable: false),
+                    topic_id = table.Column<int>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_guest_topics", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_guest_topics_users_guest_id",
+                        column: x => x.guest_id,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "fk_guest_topics_topics_topic_id",
+                        column: x => x.topic_id,
+                        principalTable: "topics",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "podcast_topics",
                 columns: table => new
                 {
@@ -271,6 +299,16 @@ namespace Guests.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "ix_guest_topics_guest_id",
+                table: "guest_topics",
+                column: "guest_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_guest_topics_topic_id",
+                table: "guest_topics",
+                column: "topic_id");
+
+            migrationBuilder.CreateIndex(
                 name: "ix_podcast_topics_podcast_id",
                 table: "podcast_topics",
                 column: "podcast_id");
@@ -297,6 +335,9 @@ namespace Guests.Migrations
 
             migrationBuilder.DropTable(
                 name: "AspNetUserTokens");
+
+            migrationBuilder.DropTable(
+                name: "guest_topics");
 
             migrationBuilder.DropTable(
                 name: "guests");

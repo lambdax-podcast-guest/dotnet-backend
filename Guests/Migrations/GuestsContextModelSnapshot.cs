@@ -160,6 +160,43 @@ namespace Guests.Migrations
                     b.ToTable("guests");
                 });
 
+            modelBuilder.Entity("Guests.Models.GuestTopic", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnName("id")
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnName("created_at")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("GuestId")
+                        .IsRequired()
+                        .HasColumnName("guest_id")
+                        .HasColumnType("text");
+
+                    b.Property<int>("TopicId")
+                        .HasColumnName("topic_id")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnName("updated_at")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.HasKey("Id")
+                        .HasName("pk_guest_topics");
+
+                    b.HasIndex("GuestId")
+                        .HasName("ix_guest_topics_guest_id");
+
+                    b.HasIndex("TopicId")
+                        .HasName("ix_guest_topics_topic_id");
+
+                    b.ToTable("guest_topics");
+                });
+
             modelBuilder.Entity("Guests.Models.Podcast", b =>
                 {
                     b.Property<int>("Id")
@@ -416,6 +453,23 @@ namespace Guests.Migrations
                         .HasName("pk_user_tokens");
 
                     b.ToTable("AspNetUserTokens");
+                });
+
+            modelBuilder.Entity("Guests.Models.GuestTopic", b =>
+                {
+                    b.HasOne("Guests.Models.AppUser", "User")
+                        .WithMany("GuestTopics")
+                        .HasForeignKey("GuestId")
+                        .HasConstraintName("fk_guest_topics_users_guest_id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Guests.Models.Topic", "Topic")
+                        .WithMany("GuestTopics")
+                        .HasForeignKey("TopicId")
+                        .HasConstraintName("fk_guest_topics_topics_topic_id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Guests.Models.PodcastTopic", b =>

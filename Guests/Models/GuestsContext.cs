@@ -64,6 +64,8 @@ namespace Guests.Models
 
         public DbSet<PodcastTopic> PodcastTopics { get; set; }
 
+        public DbSet<GuestTopic> GuestTopics { get; set; }
+
     }
 
 }

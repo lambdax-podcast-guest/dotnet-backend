@@ -13,6 +13,7 @@ namespace Guests.Models
         public string Name { get; set; }
 
         public List<PodcastTopic> PodcastTopics { get; set; }
+        public List<GuestTopic> GuestTopics { get; set; }
 
 
     }

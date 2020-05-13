@@ -69,10 +69,7 @@ namespace Guests
             );
 
             // Connect to the DB 
-            services.AddDbContext<AppUserContext>(options =>
-            {
-                options.UseNpgsql(_connection);
-            });
+            services.AddDbContext<AppUserContext>(options => options.UseNpgsql(_connection).UseSnakeCaseNamingConvention());
 
             // Add Identity
             services.AddIdentity<AppUser, IdentityRole>(options =>

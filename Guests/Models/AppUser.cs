@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Identity;
+using System.Collections.Generic;
 
 namespace Guests.Models
 {
@@ -25,6 +26,10 @@ namespace Guests.Models
         public string Bio { get; set; }
 
         public string[] Languages { get; set; }
+
+        public List<GuestTopic> GuestTopics { get; set; }
+
+        public List<PodcastHost> PodcastHosts { get; set; }
 
     }
 }

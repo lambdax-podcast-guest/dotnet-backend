@@ -27,13 +27,17 @@ namespace Guests.Models
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
-            builder.ApplyConfiguration(new GuestsConfigurations());
+            builder.ApplyConfiguration(new GuestsConfiguration());
             // many to many podcast to topics
-            builder.ApplyConfiguration(new PodcastTopicConfigurations());
+            builder.ApplyConfiguration(new PodcastTopicConfiguration());
             // many to many podcast to host
-            builder.ApplyConfiguration(new PodcastHostConfigurations());
+            builder.ApplyConfiguration(new PodcastHostConfiguration());
             // many to many guest to topic
-            builder.ApplyConfiguration(new GuestTopicConfigurations());
+            builder.ApplyConfiguration(new GuestTopicConfiguration());
+            // many to many podcast to guest
+            builder.ApplyConfiguration(new PodcastGuestConfiguration());
+            // many to many podcast to guest and host
+            builder.ApplyConfiguration(new InvitationConfiguration());
             base.OnModelCreating(builder);
             builder.Entity<IdentityRole>().ToTable("Roles");
             builder.Entity<AppUser>()
@@ -80,6 +84,9 @@ namespace Guests.Models
         public DbSet<GuestTopic> GuestTopics { get; set; }
 
         public DbSet<PodcastHost> PodcastHosts { get; set; }
+
+        public DbSet<PodcastGuest> PodcastGuests { get; set; }
+        public DbSet<Invitation> Invitations { get; set; }
 
     }
 

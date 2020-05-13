@@ -14,21 +14,14 @@ namespace Guests.Helpers
 {
     public class TokenManager
     {
-        
-        
-        public TokenManager(IConfiguration configuration)
+        public TokenManager(IConfiguration configuration) { }
+        public static string GenerateToken(IList<string> roles, AppUser user)
         {
-            
-        }
+            ClaimsIdentity claimsIdentity = new ClaimsIdentity(roles.Select(role => new Claim(ClaimTypes.Role, role)));
 
-        // I removed the extra props for this function.
-        public static string GenerateToken(string[] roles, AppUser user)
-        {
-            var claimsIdentity = new ClaimsIdentity(roles.Select(role => new Claim(ClaimTypes.Role, role)));
+            JwtSecurityTokenHandler handler = new JwtSecurityTokenHandler();
 
-            var handler = new JwtSecurityTokenHandler();
-
-            var token = new JwtSecurityToken
+            JwtSecurityToken token = new JwtSecurityToken
             (
                 issuer: Startup.Configuration["Guests:JwtIssuer"],
                 // access the claims within the claims identity

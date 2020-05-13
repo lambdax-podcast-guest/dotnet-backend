@@ -12,7 +12,12 @@ namespace Guests.Models
         {
             builder.ApplyConfiguration(new GuestsConfigurations());
             base.OnModelCreating(builder);
-            builder.Entity<AppUser>().ToTable("AppUser");
+            builder.Entity<AppUser>()
+                .ToTable("AppUser")
+                .Ignore(p => p.AccessFailedCount)
+                .Ignore(p => p.TwoFactorEnabled)
+                .Ignore(p => p.LockoutEnd)
+                .Ignore(p => p.LockoutEnabled);
             builder.Entity<IdentityRole>().ToTable("Roles");
         }
 

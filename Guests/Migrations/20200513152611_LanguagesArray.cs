@@ -1,9 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace Guests.Migrations
 {
-    public partial class CustomTableNames : Migration
+    public partial class LanguagesArray : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -28,7 +29,7 @@ namespace Guests.Migrations
                     HeadLine = table.Column<string>(maxLength: 200, nullable: true),
                     Location = table.Column<string>(maxLength: 200, nullable: true),
                     Bio = table.Column<string>(nullable: true),
-                    Languages = table.Column<string>(nullable: true)
+                    Languages = table.Column<string[]>(nullable: true)
                 },
                 constraints: table =>
                 {

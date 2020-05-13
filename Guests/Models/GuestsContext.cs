@@ -27,6 +27,7 @@ namespace Guests.Models
         protected override void OnModelCreating(ModelBuilder builder)
         {
             builder.ApplyConfiguration(new GuestsConfigurations());
+            PodcastTopicConfiguration.Configure(builder);
             base.OnModelCreating(builder);
         }
 
@@ -58,6 +59,10 @@ namespace Guests.Models
         public DbSet<Guest> Guests { get; set; }
 
         public DbSet<Topic> Topics { get; set; }
+
+        public DbSet<Podcast> Podcasts { get; set; }
+
+        public DbSet<PodcastTopic> PodcastTopics { get; set; }
 
     }
 

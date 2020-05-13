@@ -160,6 +160,74 @@ namespace Guests.Migrations
                     b.ToTable("guests");
                 });
 
+            modelBuilder.Entity("Guests.Models.Podcast", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnName("id")
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnName("created_at")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("Description")
+                        .HasColumnName("description")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnName("name")
+                        .HasColumnType("character varying(200)")
+                        .HasMaxLength(200);
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnName("updated_at")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.HasKey("Id")
+                        .HasName("pk_podcasts");
+
+                    b.ToTable("podcasts");
+                });
+
+            modelBuilder.Entity("Guests.Models.PodcastTopic", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnName("id")
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnName("created_at")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<int>("PodcastId")
+                        .HasColumnName("podcast_id")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("TopicId")
+                        .HasColumnName("topic_id")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnName("updated_at")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.HasKey("Id")
+                        .HasName("pk_podcast_topics");
+
+                    b.HasIndex("PodcastId")
+                        .HasName("ix_podcast_topics_podcast_id");
+
+                    b.HasIndex("TopicId")
+                        .HasName("ix_podcast_topics_topic_id");
+
+                    b.ToTable("podcast_topics");
+                });
+
             modelBuilder.Entity("Guests.Models.Topic", b =>
                 {
                     b.Property<int>("Id")
@@ -348,6 +416,23 @@ namespace Guests.Migrations
                         .HasName("pk_user_tokens");
 
                     b.ToTable("AspNetUserTokens");
+                });
+
+            modelBuilder.Entity("Guests.Models.PodcastTopic", b =>
+                {
+                    b.HasOne("Guests.Models.Podcast", "Podcast")
+                        .WithMany("PodcastTopics")
+                        .HasForeignKey("PodcastId")
+                        .HasConstraintName("fk_podcast_topics_podcasts_podcast_id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Guests.Models.Topic", "Topic")
+                        .WithMany("PodcastTopics")
+                        .HasForeignKey("TopicId")
+                        .HasConstraintName("fk_podcast_topics_topics_topic_id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

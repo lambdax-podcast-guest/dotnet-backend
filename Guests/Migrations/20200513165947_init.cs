@@ -69,6 +69,22 @@ namespace Guests.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "podcasts",
+                columns: table => new
+                {
+                    id = table.Column<int>(nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    created_at = table.Column<DateTime>(nullable: false),
+                    updated_at = table.Column<DateTime>(nullable: false),
+                    name = table.Column<string>(maxLength: 200, nullable: false),
+                    description = table.Column<string>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_podcasts", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "topics",
                 columns: table => new
                 {
@@ -189,6 +205,34 @@ namespace Guests.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "podcast_topics",
+                columns: table => new
+                {
+                    id = table.Column<int>(nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    created_at = table.Column<DateTime>(nullable: false),
+                    updated_at = table.Column<DateTime>(nullable: false),
+                    podcast_id = table.Column<int>(nullable: false),
+                    topic_id = table.Column<int>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_podcast_topics", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_podcast_topics_podcasts_podcast_id",
+                        column: x => x.podcast_id,
+                        principalTable: "podcasts",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "fk_podcast_topics_topics_topic_id",
+                        column: x => x.topic_id,
+                        principalTable: "topics",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "ix_role_claims_role_id",
                 table: "AspNetRoleClaims",
@@ -225,6 +269,16 @@ namespace Guests.Migrations
                 table: "AspNetUsers",
                 column: "normalized_user_name",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "ix_podcast_topics_podcast_id",
+                table: "podcast_topics",
+                column: "podcast_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_podcast_topics_topic_id",
+                table: "podcast_topics",
+                column: "topic_id");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -248,13 +302,19 @@ namespace Guests.Migrations
                 name: "guests");
 
             migrationBuilder.DropTable(
-                name: "topics");
+                name: "podcast_topics");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");
+
+            migrationBuilder.DropTable(
+                name: "podcasts");
+
+            migrationBuilder.DropTable(
+                name: "topics");
         }
     }
 }

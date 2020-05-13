@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 namespace Guests.Models
 {
     // inherit from timestamp entity to get timestamps
-    public class Topic : GuestsContext.TimestampEntity
+    public class Podcast : GuestsContext.TimestampEntity
     {
         public int Id { get; set; }
 
@@ -12,8 +12,8 @@ namespace Guests.Models
         [StringLength(200)]
         public string Name { get; set; }
 
+        public string Description { get; set; }
         public List<PodcastTopic> PodcastTopics { get; set; }
-
 
     }
 }

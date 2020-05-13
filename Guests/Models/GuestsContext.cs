@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using Guests.Models.ModelsConfig;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 
 namespace Guests.Models
@@ -28,7 +30,7 @@ namespace Guests.Models
             base.OnModelCreating(builder);
         }
 
-        public override int SaveChanges()
+        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             // Automatically set updated at and created at on all created and updated entries from all tables
             // Use ChangeTracker to get all updated and added entries from the db
@@ -50,8 +52,7 @@ namespace Guests.Models
                     ((TimestampEntity)entityEntry.Entity).CreatedAt = DateTime.Now;
                 }
             }
-            // method will return number of changes
-            return base.SaveChanges();
+            return (await base.SaveChangesAsync(true, cancellationToken));
         }
 
         public DbSet<Guest> Guests { get; set; }

@@ -1,4 +1,3 @@
-using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -14,6 +13,7 @@ namespace Guests.Models
         public string GuestId { get; set; }
         public AppUser User { get; set; }
         [Required]
+        [ForeignKey("Topic")]
         public int TopicId { get; set; }
         public Topic Topic { get; set; }
 

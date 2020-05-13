@@ -69,7 +69,7 @@ namespace Guests
             );
 
             // Connect to the DB 
-            services.AddDbContext<GuestsContext>(options =>
+            services.AddDbContext<AppUserContext>(options =>
             {
                 options.UseNpgsql(_connection);
             });
@@ -80,7 +80,7 @@ namespace Guests
                 options.User.RequireUniqueEmail = true;
             })
                 .AddRoles<IdentityRole>()
-                .AddEntityFrameworkStores<GuestsContext>()
+                .AddEntityFrameworkStores<AppUserContext>()
                 .AddDefaultTokenProviders();
 
             // ===== Add Jwt Authentication ========

@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
 
-
 namespace Guests.Helpers
 {
     public class DataInitializer

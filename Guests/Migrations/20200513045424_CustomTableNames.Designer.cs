@@ -9,9 +9,9 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace Guests.Migrations
 {
-    [DbContext(typeof(GuestsContext))]
-    [Migration("20200507215208_init")]
-    partial class init
+    [DbContext(typeof(AppUserContext))]
+    [Migration("20200513045424_CustomTableNames")]
+    partial class CustomTableNames
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -110,7 +110,7 @@ namespace Guests.Migrations
                         .IsUnique()
                         .HasName("UserNameIndex");
 
-                    b.ToTable("AspNetUsers");
+                    b.ToTable("AppUser");
                 });
 
             modelBuilder.Entity("Guests.Models.Guest", b =>
@@ -158,7 +158,7 @@ namespace Guests.Migrations
                         .IsUnique()
                         .HasName("RoleNameIndex");
 
-                    b.ToTable("AspNetRoles");
+                    b.ToTable("Roles");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

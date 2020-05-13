@@ -68,6 +68,9 @@ namespace Guests
                })
             );
 
+            // allow us to use HttpContext within DbContext
+            services.AddHttpContextAccessor();
+
             // Connect to the DB 
             services.AddDbContext<AppUserContext>(options => options.UseNpgsql(_connection).UseSnakeCaseNamingConvention());
 

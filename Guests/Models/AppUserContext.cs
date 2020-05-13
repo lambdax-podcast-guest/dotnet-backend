@@ -6,6 +6,9 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Hosting;
+using Guests.Helpers;
+
 
 
 namespace Guests.Models
@@ -13,10 +16,11 @@ namespace Guests.Models
 
     public class AppUserContext : IdentityDbContext<AppUser>
     {
-        public AppUserContext(DbContextOptions<AppUserContext> options)
+        protected IWebHostEnvironment WebHostEnv { get; }
+        public AppUserContext(DbContextOptions<AppUserContext> options, IWebHostEnvironment webHostEnv)
             : base(options)
         {
-
+            WebHostEnv = webHostEnv;
         }
         // Inherit from this TimestampEntity class for your model to have CreatedAt and UpdatedAt Timestamps that are updated automatically. Unfortunately this will not work with our Identity Classes, as they already inherit from Identity
         public class TimestampEntity
@@ -46,6 +50,26 @@ namespace Guests.Models
                 .Ignore(p => p.TwoFactorEnabled)
                 .Ignore(p => p.LockoutEnd)
                 .Ignore(p => p.LockoutEnabled);
+
+            // get topics from DataInitializer and seed to db
+            var contentRootPath = WebHostEnv.ContentRootPath;
+            string[] topicList = DataInitializer.Topics;
+            int count = 1;
+            foreach (string topic in topicList)
+            {
+                builder.Entity<Topic>()
+                .HasData
+                (
+                    new Topic
+                    {
+                        Id = count,
+                        Name = topic,
+                        CreatedAt = DateTime.Now,
+                        UpdatedAt = DateTime.Now
+                    }
+                );
+                count++;
+            }
         }
 
         public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default(CancellationToken))

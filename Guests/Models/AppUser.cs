@@ -29,5 +29,7 @@ namespace Guests.Models
 
         public List<GuestTopic> GuestTopics { get; set; }
 
+        public List<PodcastHost> PodcastHosts { get; set; }
+
     }
 }

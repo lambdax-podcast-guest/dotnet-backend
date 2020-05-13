@@ -15,5 +15,7 @@ namespace Guests.Models
         public string Description { get; set; }
         public List<PodcastTopic> PodcastTopics { get; set; }
 
+        public List<PodcastHost> PodcastHosts { get; set; }
+
     }
 }

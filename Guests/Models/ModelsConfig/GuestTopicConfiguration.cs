@@ -9,14 +9,14 @@ namespace Guests.Models.ModelsConfig
         public static void Configure(ModelBuilder builder)
         {
             builder.Entity<GuestTopic>()
-            .HasOne(pt => pt.User)
-            .WithMany(p => p.GuestTopics)
-            .HasForeignKey(pt => pt.GuestId);
+            .HasOne(gt => gt.User)
+            .WithMany(u => u.GuestTopics)
+            .HasForeignKey(gt => gt.GuestId);
 
             builder.Entity<GuestTopic>()
-            .HasOne(pt => pt.Topic)
+            .HasOne(gt => gt.Topic)
             .WithMany(t => t.GuestTopics)
-            .HasForeignKey(pt => pt.TopicId);
+            .HasForeignKey(gt => gt.TopicId);
 
         }
 

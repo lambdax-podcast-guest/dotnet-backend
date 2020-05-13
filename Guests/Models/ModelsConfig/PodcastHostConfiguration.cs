@@ -3,22 +3,17 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Guests.Models.ModelsConfig
 {
-    public class PodcastHostConfiguration
+    public class PodcastHostConfigurations : IEntityTypeConfiguration<PodcastHost>
     {
-        // explanation in podcasttopicconfiguration
-        public static void Configure(ModelBuilder builder)
+        public void Configure(EntityTypeBuilder<PodcastHost> builder)
         {
-            builder.Entity<PodcastHost>()
-            .HasOne(ph => ph.User)
+            builder.HasOne(ph => ph.User)
             .WithMany(u => u.PodcastHosts)
             .HasForeignKey(ph => ph.HostId);
 
-            builder.Entity<PodcastHost>()
-            .HasOne(ph => ph.Podcast)
+            builder.HasOne(ph => ph.Podcast)
             .WithMany(t => t.PodcastHosts)
             .HasForeignKey(ph => ph.PodcastId);
-
         }
-
     }
 }

@@ -25,7 +25,7 @@ namespace Guests.Models
 
         public string Bio { get; set; }
 
-        public string Languages { get; set; }
+        public string[] Languages { get; set; }
 
         public List<GuestTopic> GuestTopics { get; set; }
 

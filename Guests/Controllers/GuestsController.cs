@@ -12,9 +12,9 @@ namespace Guests.Controllers
     public class GuestsController : Controller
     {
 
-        private readonly GuestsContext Context;
+        private readonly AppUserContext Context;
 
-        public GuestsController(GuestsContext context)
+        public GuestsController(AppUserContext context)
             => Context = context;
 
         // GET: api/guests

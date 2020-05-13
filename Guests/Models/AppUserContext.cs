@@ -5,14 +5,15 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity;
 
 
 namespace Guests.Models
 {
 
-    public class GuestsContext : IdentityDbContext<AppUser>
+    public class AppUserContext : IdentityDbContext<AppUser>
     {
-        public GuestsContext(DbContextOptions<GuestsContext> options)
+        public AppUserContext(DbContextOptions<AppUserContext> options)
             : base(options)
         {
 
@@ -27,8 +28,20 @@ namespace Guests.Models
         protected override void OnModelCreating(ModelBuilder builder)
         {
             builder.ApplyConfiguration(new GuestsConfigurations());
-            PodcastTopicConfiguration.Configure(builder);
+            // many to many podcast to topics
+            builder.ApplyConfiguration(new PodcastTopicConfigurations());
+            // many to many podcast to host
+            builder.ApplyConfiguration(new PodcastHostConfigurations());
+            // many to many guest to topic
+            builder.ApplyConfiguration(new GuestTopicConfigurations());
             base.OnModelCreating(builder);
+            builder.Entity<IdentityRole>().ToTable("Roles");
+            builder.Entity<AppUser>()
+                .ToTable("AppUser")
+                .Ignore(p => p.AccessFailedCount)
+                .Ignore(p => p.TwoFactorEnabled)
+                .Ignore(p => p.LockoutEnd)
+                .Ignore(p => p.LockoutEnabled);
         }
 
         public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default(CancellationToken))

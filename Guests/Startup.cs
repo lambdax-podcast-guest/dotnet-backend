@@ -35,10 +35,10 @@ namespace Guests
         {
             services.AddCors(options => options.AddPolicy("AllowAll",
                builder => builder.WithOrigins("http://localhost:8080").AllowAnyHeader().AllowAnyMethod()));
+            DbConnectionStringBuilder builder = new DbConnectionStringBuilder();
             if (environment.IsDevelopment())
             {
                 // This is how you add in the secrets to the connectionString 
-                DbConnectionStringBuilder builder = new DbConnectionStringBuilder();
                 // Append the secrets to the end of the string
                 builder.Add("User ID", Configuration["HerokuUsername"]);
                 builder.Add("Password", Configuration["HerokuPassword"]);
@@ -49,10 +49,14 @@ namespace Guests
                 builder.Add("SSL Mode", "Require");
                 builder.Add("TrustServerCertificate", "True");
 
-                // make the null value of _connection equal the newly built connectionString
-                _connection = builder.ConnectionString;
             }
-            else _connection = Configuration["DATABASE_URL"];
+            else
+            {
+                builder.ConnectionString = Configuration["DATABASE_URL"];
+            }
+
+            // make the null value of _connection equal the newly built connectionString
+            _connection = builder.ConnectionString;
 
             services.AddMvc();
 

@@ -20,12 +20,24 @@ namespace Guests.Controllers
         private UserManager<AppUser> _userManager;
         private SignInManager<AppUser> _signManager;
         private RoleManager<IdentityRole> _roleManager;
+        private AppUserContext _context;
         // we need access to the userManager and signManager from identity, add them to the constructor so we have access to them
-        public AccountController(UserManager<AppUser> userManager, SignInManager<AppUser> signManager, RoleManager<IdentityRole> roleManager)
+        public AccountController(UserManager<AppUser> userManager, SignInManager<AppUser> signManager, RoleManager<IdentityRole> roleManager, AppUserContext context)
         {
             _userManager = userManager;
             _signManager = signManager;
             _roleManager = roleManager;
+            _context = context;
+        }
+
+        /// <summary>Asynchronously gets a user's roles and user data from the database.</summary>
+        private async Task<Tuple<IList<string>, AppUser>> TokenizeUser(string email)
+        {
+            // Get the user from the database
+            AppUser dbUser = _userManager.Users.Where(u => u.Email == email).First();
+            // Get the roles associated with the user from the database 
+            IList<string> roles = await _userManager.GetRolesAsync(dbUser);
+            return new Tuple<IList<string>, AppUser>(roles, dbUser);
         }
 
         [HttpPost]
@@ -66,16 +78,8 @@ namespace Guests.Controllers
                     // on success login the user, false indicates we won't persist a login cookie, we want to use tokens. CreatedAtAction and BadRequest are from the ControllerBase class
                     await _signManager.SignInAsync(user, false);
 
-                    /* Might encapsulate the following logic to a function later:
-
-                        1. Get the user from the database
-                    */
-                    AppUser dbUser = _userManager.Users.Where(u => u.Email == input.Email).First();
-                    /*  
-                        2. Get the roles associated with the user from the database 
-                    */
-                    IList<string> roles = await _userManager.GetRolesAsync(dbUser);
-                    string token = TokenManager.GenerateToken(roles, dbUser);
+                    Tuple<IList<string>, AppUser> userWithRoles = await TokenizeUser(input.Email);
+                    string token = TokenManager.GenerateToken(userWithRoles);
 
                     return CreatedAtAction(nameof(Register), new { id = user.Id }, new { id = user.Id, token = token });
                 }
@@ -85,12 +89,12 @@ namespace Guests.Controllers
                     {
                         ModelState.AddModelError("", error.Description);
                     }
-                    return BadRequest(ModelState);
+                    return ValidationProblem(ModelState);
                 }
             }
 
             // if the model state was never valid return the modelstate errors
-            return BadRequest(ModelState);
+            return UnprocessableEntity(ModelState);
         }
 
         [HttpPost]
@@ -98,21 +102,80 @@ namespace Guests.Controllers
         {
             if (ModelState.IsValid)
             {
-                var result = await _signManager.PasswordSignInAsync(input.Email, input.Password, false, false);
+                Microsoft.AspNetCore.Identity.SignInResult result = await _signManager.PasswordSignInAsync(input.Email, input.Password, false, false);
 
                 if (result.Succeeded)
                 {
-                    AppUser dbUser = _userManager.Users.Where(u => u.Email == input.Email).First();
-                    IList<string> roles = await _userManager.GetRolesAsync(dbUser);
-                    var token = TokenManager.GenerateToken(roles, dbUser);
+                    Tuple<IList<string>, AppUser> userWithRoles = await TokenizeUser(input.Email);
+                    string token = TokenManager.GenerateToken(userWithRoles);
                     return Ok(new { token = token });
                 }
                 else
                 {
-                    return Unauthorized();
+                    return ValidationProblem(ModelState);
                 }
             }
-            return BadRequest(ModelState);
+            return UnprocessableEntity(ModelState);
+        }
+
+        [Authorize]
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(string id, [FromBody] UpdateUser input)
+        {
+            if (ModelState.IsValid)
+            {
+                bool isUserId = User.FindFirstValue(ClaimTypes.NameIdentifier) == id;
+
+                if (isUserId)
+                {
+                    AppUser user = await _userManager.FindByIdAsync(id);
+
+                    // Return 404 status if user not found
+                    if (user == null) return NotFound("The user with the specified ID was not found.");
+
+                    // Update only the non-identity fields
+                    user.FirstName = input.FirstName;
+                    user.LastName = input.LastName;
+                    user.AvatarUrl = input.AvatarUrl;
+                    user.HeadLine = input.HeadLine;
+                    user.Location = input.Location;
+                    user.Bio = input.Bio;
+                    user.Languages = input.Languages;
+
+                    await _context.SaveChangesAsync();
+
+                    return Ok(user);
+                }
+
+                // Return 401 if not same user
+                return Unauthorized();
+            }
+
+            // Return 422 if Model inconsistent with AppUser
+            return UnprocessableEntity(ModelState);
+        }
+
+        [Authorize]
+        [HttpDelete("Id")]
+        public async Task<IActionResult> Delete(string id)
+        {
+            bool isUserId = User.FindFirstValue(ClaimTypes.NameIdentifier) == id;
+
+            if (isUserId)
+            {
+                AppUser user = await _userManager.FindByIdAsync(id);
+
+                if (user == null) return NotFound("The user with the specified ID was not found.");
+
+                _context.Remove(user);
+
+                await _context.SaveChangesAsync();
+
+                if (_context.Users == null) return NotFound("No users found.");
+
+                return Ok(_context.Users);
+            }
+            return Unauthorized();
         }
     }
 }

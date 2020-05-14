@@ -49,23 +49,25 @@ namespace Guests
 
             // add swashBuckle through swagger
             services.AddSwaggerGen(options =>
-               options.SwaggerDoc("v1", new OpenApiInfo
-               {
-                   Title = "Podcast Guests API",
-                   Version = "v1",
-                   Description = "Backend for Podcast Guests",
-                   // TermsOfService = new Uri("https://example.com/terms"),
-                   Contact = new OpenApiContact
-                   {
-                       Name = "Charlie FN Rogers, Steve Smodish, Brandon Porter, David Freitag",
-                       Url = new Uri("https://lambdax-podcast-guest.github.io/FrontEndView/"),
-                   },
-                   License = new OpenApiLicense
-                   {
-                       Name = "Using MIT Open Source License",
-                       Url = new Uri("https://opensource.org/licenses/MIT"),
-                   }
-               })
+            {
+                options.SwaggerDoc("v1", new OpenApiInfo
+                {
+                    Title = "Podcast Guests API",
+                    Version = "v1",
+                    Description = "Backend for Podcast Guests",
+                    // TermsOfService = new Uri("https://example.com/terms"),
+                    Contact = new OpenApiContact
+                    {
+                        Name = "Charlie FN Rogers, Steve Smodish, Brandon Porter, David Freitag",
+                        Url = new Uri("https://lambdax-podcast-guest.github.io/FrontEndView/"),
+                    },
+                    License = new OpenApiLicense
+                    {
+                        Name = "Using MIT Open Source License",
+                        Url = new Uri("https://opensource.org/licenses/MIT"),
+                    }
+                });
+            }
             );
 
             // Connect to the DB 

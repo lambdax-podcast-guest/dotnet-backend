@@ -4,9 +4,7 @@ using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using System.Threading.Tasks;
 using Guests.Models;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 
@@ -15,9 +13,11 @@ namespace Guests.Helpers
     public class TokenManager
     {
         public TokenManager(IConfiguration configuration) { }
-        public static string GenerateToken(IList<string> roles, AppUser user)
+        public static string GenerateToken(Tuple<IList<string>, AppUser> user)
         {
-            ClaimsIdentity claimsIdentity = new ClaimsIdentity(roles.Select(role => new Claim(ClaimTypes.Role, role)));
+            ClaimsIdentity claimsIdentity = new ClaimsIdentity(user.Item1.Select(role => new Claim(ClaimTypes.Role, role)));
+            claimsIdentity.AddClaim(new Claim(ClaimTypes.Email, user.Item2.Email));
+            claimsIdentity.AddClaim(new Claim(ClaimTypes.NameIdentifier, user.Item2.Id));
 
             JwtSecurityTokenHandler handler = new JwtSecurityTokenHandler();
 

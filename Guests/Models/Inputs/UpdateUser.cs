@@ -1,14 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations;
-using Microsoft.AspNetCore.Identity;
-using System.Collections.Generic;
-using Newtonsoft.Json;
+using System.ComponentModel.DataAnnotations;
 
-namespace Guests.Models
+namespace Guests.Models.Inputs
 {
-    /// <summary>Represents a user on the database.</summary>
-    public class AppUser : IdentityUser
+    public class UpdateUser
     {
-        /// <summary>First name of user</summary>
         [Required]
         [StringLength(200)]
         public string FirstName { get; set; }
@@ -34,10 +29,5 @@ namespace Guests.Models
         public string Bio { get; set; }
 
         public string[] Languages { get; set; }
-
-        public List<GuestTopic> GuestTopics { get; set; }
-
-        public List<PodcastHost> PodcastHosts { get; set; }
-
     }
 }

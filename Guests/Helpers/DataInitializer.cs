@@ -1,9 +1,13 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using System.Collections.Generic;
+using Guests.Models;
 
 namespace Guests.Helpers
 {
     public class DataInitializer
     {
+        // Topics property will hold a list of topics to be seeded to the db
+        public static readonly string[] Topics = new string[] { "Sports", "Literature" };
         public static void SeedData(RoleManager<IdentityRole> roleManager)
         {
             SeedRoles(roleManager);

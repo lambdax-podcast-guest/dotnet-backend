@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Guests.Models.ModelsConfig
 {
-    public class GuestTopicConfigurations : IEntityTypeConfiguration<GuestTopic>
+    public class GuestTopicConfiguration : IEntityTypeConfiguration<GuestTopic>
     {
         public void Configure(EntityTypeBuilder<GuestTopic> builder)
         {

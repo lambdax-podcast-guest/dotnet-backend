@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Guests.Models.ModelsConfig
 {
-    public class PodcastHostConfigurations : IEntityTypeConfiguration<PodcastHost>
+    public class PodcastHostConfiguration : IEntityTypeConfiguration<PodcastHost>
     {
         public void Configure(EntityTypeBuilder<PodcastHost> builder)
         {

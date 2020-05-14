@@ -10,8 +10,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Guests.Migrations
 {
     [DbContext(typeof(AppUserContext))]
-    [Migration("20200513183250_isaac")]
-    partial class isaac
+    [Migration("20200513232112_CreateTables")]
+    partial class CreateTables
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -183,6 +183,60 @@ namespace Guests.Migrations
                     b.ToTable("guest_topics");
                 });
 
+            modelBuilder.Entity("Guests.Models.Invitation", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnName("id")
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnName("created_at")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("GuestId")
+                        .IsRequired()
+                        .HasColumnName("guest_id")
+                        .HasColumnType("text");
+
+                    b.Property<string>("HostId")
+                        .IsRequired()
+                        .HasColumnName("host_id")
+                        .HasColumnType("text");
+
+                    b.Property<string>("InvitationText")
+                        .HasColumnName("invitation_text")
+                        .HasColumnType("text");
+
+                    b.Property<int>("PodcastId")
+                        .HasColumnName("podcast_id")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("RequestType")
+                        .IsRequired()
+                        .HasColumnName("request_type")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnName("updated_at")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.HasKey("Id")
+                        .HasName("pk_invitations");
+
+                    b.HasIndex("GuestId")
+                        .HasName("ix_invitations_guest_id");
+
+                    b.HasIndex("HostId")
+                        .HasName("ix_invitations_host_id");
+
+                    b.HasIndex("PodcastId")
+                        .HasName("ix_invitations_podcast_id");
+
+                    b.ToTable("invitations");
+                });
+
             modelBuilder.Entity("Guests.Models.Podcast", b =>
                 {
                     b.Property<int>("Id")
@@ -199,6 +253,10 @@ namespace Guests.Migrations
                         .HasColumnName("description")
                         .HasColumnType("text");
 
+                    b.Property<string>("HeadLine")
+                        .HasColumnName("head_line")
+                        .HasColumnType("text");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnName("name")
@@ -213,6 +271,43 @@ namespace Guests.Migrations
                         .HasName("pk_podcasts");
 
                     b.ToTable("podcasts");
+                });
+
+            modelBuilder.Entity("Guests.Models.PodcastGuest", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnName("id")
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnName("created_at")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("GuestId")
+                        .IsRequired()
+                        .HasColumnName("guest_id")
+                        .HasColumnType("text");
+
+                    b.Property<int>("PodcastId")
+                        .HasColumnName("podcast_id")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnName("updated_at")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.HasKey("Id")
+                        .HasName("pk_podcast_guests");
+
+                    b.HasIndex("GuestId")
+                        .HasName("ix_podcast_guests_guest_id");
+
+                    b.HasIndex("PodcastId")
+                        .HasName("ix_podcast_guests_podcast_id");
+
+                    b.ToTable("podcast_guests");
                 });
 
             modelBuilder.Entity("Guests.Models.PodcastHost", b =>
@@ -314,6 +409,22 @@ namespace Guests.Migrations
                         .HasName("pk_topics");
 
                     b.ToTable("topics");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            CreatedAt = new DateTime(2020, 5, 13, 16, 21, 11, 860, DateTimeKind.Local).AddTicks(5550),
+                            Name = "Sports",
+                            UpdatedAt = new DateTime(2020, 5, 13, 16, 21, 11, 861, DateTimeKind.Local).AddTicks(7176)
+                        },
+                        new
+                        {
+                            Id = 2,
+                            CreatedAt = new DateTime(2020, 5, 13, 16, 21, 11, 862, DateTimeKind.Local).AddTicks(9146),
+                            Name = "Literature",
+                            UpdatedAt = new DateTime(2020, 5, 13, 16, 21, 11, 862, DateTimeKind.Local).AddTicks(9170)
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -491,6 +602,47 @@ namespace Guests.Migrations
                         .WithMany("GuestTopics")
                         .HasForeignKey("TopicId")
                         .HasConstraintName("fk_guest_topics_topics_topic_id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Guests.Models.Invitation", b =>
+                {
+                    b.HasOne("Guests.Models.AppUser", "GuestUser")
+                        .WithMany("Invitations")
+                        .HasForeignKey("GuestId")
+                        .HasConstraintName("fk_invitations_users_guest_id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Guests.Models.AppUser", "HostUser")
+                        .WithMany()
+                        .HasForeignKey("HostId")
+                        .HasConstraintName("fk_invitations_users_host_id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Guests.Models.Podcast", "Podcast")
+                        .WithMany("Invitations")
+                        .HasForeignKey("PodcastId")
+                        .HasConstraintName("fk_invitations_podcasts_podcast_id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Guests.Models.PodcastGuest", b =>
+                {
+                    b.HasOne("Guests.Models.AppUser", "User")
+                        .WithMany("PodcastGuests")
+                        .HasForeignKey("GuestId")
+                        .HasConstraintName("fk_podcast_guests_users_guest_id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Guests.Models.Podcast", "Podcast")
+                        .WithMany("PodcastGuests")
+                        .HasForeignKey("PodcastId")
+                        .HasConstraintName("fk_podcast_guests_podcasts_podcast_id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

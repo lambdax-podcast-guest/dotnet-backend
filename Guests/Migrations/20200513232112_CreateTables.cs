@@ -4,7 +4,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace Guests.Migrations
 {
-    public partial class isaac : Migration
+    public partial class CreateTables : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -352,7 +352,8 @@ namespace Guests.Migrations
                     created_at = table.Column<DateTime>(nullable: false),
                     updated_at = table.Column<DateTime>(nullable: false),
                     name = table.Column<string>(maxLength: 200, nullable: false),
-                    description = table.Column<string>(nullable: true)
+                    description = table.Column<string>(nullable: true),
+                    head_line = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -372,6 +373,71 @@ namespace Guests.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("pk_topics", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "invitations",
+                columns: table => new
+                {
+                    id = table.Column<int>(nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    created_at = table.Column<DateTime>(nullable: false),
+                    updated_at = table.Column<DateTime>(nullable: false),
+                    podcast_id = table.Column<int>(nullable: false),
+                    guest_id = table.Column<string>(nullable: false),
+                    host_id = table.Column<string>(nullable: false),
+                    request_type = table.Column<string>(nullable: false),
+                    invitation_text = table.Column<string>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_invitations", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_invitations_users_guest_id",
+                        column: x => x.guest_id,
+                        principalTable: "AppUser",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "fk_invitations_users_host_id",
+                        column: x => x.host_id,
+                        principalTable: "AppUser",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "fk_invitations_podcasts_podcast_id",
+                        column: x => x.podcast_id,
+                        principalTable: "podcasts",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "podcast_guests",
+                columns: table => new
+                {
+                    id = table.Column<int>(nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    created_at = table.Column<DateTime>(nullable: false),
+                    updated_at = table.Column<DateTime>(nullable: false),
+                    podcast_id = table.Column<int>(nullable: false),
+                    guest_id = table.Column<string>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_podcast_guests", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_podcast_guests_users_guest_id",
+                        column: x => x.guest_id,
+                        principalTable: "AppUser",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "fk_podcast_guests_podcasts_podcast_id",
+                        column: x => x.podcast_id,
+                        principalTable: "podcasts",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -458,6 +524,15 @@ namespace Guests.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.InsertData(
+                table: "topics",
+                columns: new[] { "id", "created_at", "name", "updated_at" },
+                values: new object[,]
+                {
+                    { 1, new DateTime(2020, 5, 13, 16, 21, 11, 860, DateTimeKind.Local).AddTicks(5550), "Sports", new DateTime(2020, 5, 13, 16, 21, 11, 861, DateTimeKind.Local).AddTicks(7176) },
+                    { 2, new DateTime(2020, 5, 13, 16, 21, 11, 862, DateTimeKind.Local).AddTicks(9146), "Literature", new DateTime(2020, 5, 13, 16, 21, 11, 862, DateTimeKind.Local).AddTicks(9170) }
+                });
+
             migrationBuilder.CreateIndex(
                 name: "ix_guest_topics_guest_id",
                 table: "guest_topics",
@@ -467,6 +542,31 @@ namespace Guests.Migrations
                 name: "ix_guest_topics_topic_id",
                 table: "guest_topics",
                 column: "topic_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_invitations_guest_id",
+                table: "invitations",
+                column: "guest_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_invitations_host_id",
+                table: "invitations",
+                column: "host_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_invitations_podcast_id",
+                table: "invitations",
+                column: "podcast_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_podcast_guests_guest_id",
+                table: "podcast_guests",
+                column: "guest_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_podcast_guests_podcast_id",
+                table: "podcast_guests",
+                column: "podcast_id");
 
             migrationBuilder.CreateIndex(
                 name: "ix_podcast_hosts_host_id",
@@ -565,6 +665,12 @@ namespace Guests.Migrations
 
             migrationBuilder.DropTable(
                 name: "guest_topics");
+
+            migrationBuilder.DropTable(
+                name: "invitations");
+
+            migrationBuilder.DropTable(
+                name: "podcast_guests");
 
             migrationBuilder.DropTable(
                 name: "podcast_hosts");

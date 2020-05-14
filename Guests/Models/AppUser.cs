@@ -39,5 +39,8 @@ namespace Guests.Models
 
         public List<PodcastHost> PodcastHosts { get; set; }
 
+        public List<PodcastGuest> PodcastGuests { get; set; }
+
+        public List<Invitation> Invitations { get; set; }
     }
 }

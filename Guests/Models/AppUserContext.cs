@@ -45,7 +45,7 @@ namespace Guests.Models
             base.OnModelCreating(builder);
             builder.Entity<IdentityRole>().ToTable("Roles");
             builder.Entity<AppUser>()
-                .ToTable("AppUser")
+                .ToTable("Users")
                 .Ignore(p => p.AccessFailedCount)
                 .Ignore(p => p.TwoFactorEnabled)
                 .Ignore(p => p.LockoutEnd)

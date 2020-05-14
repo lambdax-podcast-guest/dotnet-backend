@@ -26,24 +26,28 @@ namespace Guests
         internal static IConfiguration Configuration { get; private set; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
-        public void ConfigureServices(IServiceCollection services)
+        public void ConfigureServices(IServiceCollection services, IWebHostEnvironment env)
         {
             services.AddCors(options => options.AddPolicy("AllowAll",
                builder => builder.WithOrigins("http://localhost:8080").AllowAnyHeader().AllowAnyMethod()));
-            // This is how you add in the secrets to the connectionString 
-            DbConnectionStringBuilder builder = new DbConnectionStringBuilder();
-            // Append the secrets to the end of the string
-            builder.Add("User ID", Configuration["HerokuUsername"]);
-            builder.Add("Password", Configuration["HerokuPassword"]);
-            builder.Add("Host", Configuration["HerokuHost"]);
-            builder.Add("Post", Configuration["HerokuPost"]);
-            builder.Add("Database", Configuration["HerokuDatabase"]);
-            builder.Add("Pooling", "true");
-            builder.Add("SSL Mode", "Require");
-            builder.Add("TrustServerCertificate", "True");
+            if (env.IsDevelopment())
+            {
+                // This is how you add in the secrets to the connectionString 
+                DbConnectionStringBuilder builder = new DbConnectionStringBuilder();
+                // Append the secrets to the end of the string
+                builder.Add("User ID", Configuration["HerokuUsername"]);
+                builder.Add("Password", Configuration["HerokuPassword"]);
+                builder.Add("Host", Configuration["HerokuHost"]);
+                builder.Add("Post", Configuration["HerokuPost"]);
+                builder.Add("Database", Configuration["HerokuDatabase"]);
+                builder.Add("Pooling", "true");
+                builder.Add("SSL Mode", "Require");
+                builder.Add("TrustServerCertificate", "True");
 
-            // make the null value of _connection equal the newly built connectionString
-            _connection = builder.ConnectionString;
+                // make the null value of _connection equal the newly built connectionString
+                _connection = builder.ConnectionString;
+            }
+            else _connection = Configuration["DATABASE_URL"];
 
             services.AddMvc();
 

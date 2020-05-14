@@ -45,15 +45,16 @@ namespace Guests
                 builder.Add("Host", Configuration["HerokuHost"]);
                 builder.Add("Post", Configuration["HerokuPost"]);
                 builder.Add("Database", Configuration["HerokuDatabase"]);
-                builder.Add("Pooling", "true");
-                builder.Add("SSL Mode", "Require");
-                builder.Add("TrustServerCertificate", "True");
 
             }
             else
             {
                 builder.ConnectionString = Configuration["DATABASE_URL"];
             }
+            // add security types to string
+            builder.Add("Pooling", "true");
+            builder.Add("SSL Mode", "Require");
+            builder.Add("TrustServerCertificate", "True");
 
             // make the null value of _connection equal the newly built connectionString
             _connection = builder.ConnectionString;

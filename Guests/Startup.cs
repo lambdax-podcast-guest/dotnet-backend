@@ -20,17 +20,22 @@ namespace Guests
     public class Startup
     {
         private string _connection = null;
-        public Startup(IConfiguration configuration) => Configuration = configuration;
+        public Startup(IConfiguration configuration, IWebHostEnvironment hostEnvironment)
+        {
+            Configuration = configuration;
+            environment = hostEnvironment;
+        }
 
         // internal and static for dependency injection within any child
         internal static IConfiguration Configuration { get; private set; }
+        internal static IWebHostEnvironment environment { get; private set; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
-        public void ConfigureServices(IServiceCollection services, IWebHostEnvironment env)
+        public void ConfigureServices(IServiceCollection services)
         {
             services.AddCors(options => options.AddPolicy("AllowAll",
                builder => builder.WithOrigins("http://localhost:8080").AllowAnyHeader().AllowAnyMethod()));
-            if (env.IsDevelopment())
+            if (environment.IsDevelopment())
             {
                 // This is how you add in the secrets to the connectionString 
                 DbConnectionStringBuilder builder = new DbConnectionStringBuilder();

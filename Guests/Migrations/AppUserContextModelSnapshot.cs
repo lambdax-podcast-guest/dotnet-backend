@@ -27,8 +27,7 @@ namespace Guests.Migrations
 
                     b.Property<string>("AvatarUrl")
                         .HasColumnName("avatar_url")
-                        .HasColumnType("character varying(200)")
-                        .HasMaxLength(200);
+                        .HasColumnType("text");
 
                     b.Property<string>("Bio")
                         .HasColumnName("bio")
@@ -115,7 +114,7 @@ namespace Guests.Migrations
                         .IsUnique()
                         .HasName("UserNameIndex");
 
-                    b.ToTable("AppUser");
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("Guests.Models.Guest", b =>
@@ -412,16 +411,16 @@ namespace Guests.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedAt = new DateTime(2020, 5, 13, 16, 21, 11, 860, DateTimeKind.Local).AddTicks(5550),
+                            CreatedAt = new DateTime(2020, 5, 14, 8, 57, 43, 508, DateTimeKind.Local).AddTicks(5300),
                             Name = "Sports",
-                            UpdatedAt = new DateTime(2020, 5, 13, 16, 21, 11, 861, DateTimeKind.Local).AddTicks(7176)
+                            UpdatedAt = new DateTime(2020, 5, 14, 8, 57, 43, 511, DateTimeKind.Local).AddTicks(609)
                         },
                         new
                         {
                             Id = 2,
-                            CreatedAt = new DateTime(2020, 5, 13, 16, 21, 11, 862, DateTimeKind.Local).AddTicks(9146),
+                            CreatedAt = new DateTime(2020, 5, 14, 8, 57, 43, 512, DateTimeKind.Local).AddTicks(635),
                             Name = "Literature",
-                            UpdatedAt = new DateTime(2020, 5, 13, 16, 21, 11, 862, DateTimeKind.Local).AddTicks(9170)
+                            UpdatedAt = new DateTime(2020, 5, 14, 8, 57, 43, 512, DateTimeKind.Local).AddTicks(662)
                         });
                 });
 

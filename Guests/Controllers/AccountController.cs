@@ -156,7 +156,7 @@ namespace Guests.Controllers
         }
 
         [Authorize]
-        [HttpDelete("Id")]
+        [HttpDelete("{Id}")]
         public async Task<IActionResult> Delete(string id)
         {
             bool isUserId = User.FindFirstValue(ClaimTypes.NameIdentifier) == id;

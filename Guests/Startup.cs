@@ -14,36 +14,57 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using System.Data.SqlClient;
+using System.Data.OleDb;
+using System.Data.OracleClient;
+using System.Data.Odbc;
+using Npgsql;
 
 namespace Guests
 {
     public class Startup
     {
         private string _connection = null;
-        public Startup(IConfiguration configuration) => Configuration = configuration;
+        public Startup(IConfiguration configuration, IWebHostEnvironment hostEnvironment)
+        {
+            Configuration = configuration;
+            environment = hostEnvironment;
+        }
 
         // internal and static for dependency injection within any child
         internal static IConfiguration Configuration { get; private set; }
+        internal static IWebHostEnvironment environment { get; private set; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddCors(options => options.AddPolicy("AllowAll",
                builder => builder.WithOrigins("http://localhost:8080").AllowAnyHeader().AllowAnyMethod()));
-            // This is how you add in the secrets to the connectionString 
-            DbConnectionStringBuilder builder = new DbConnectionStringBuilder();
-            // Append the secrets to the end of the string
-            builder.Add("User ID", Configuration["HerokuUsername"]);
-            builder.Add("Password", Configuration["HerokuPassword"]);
-            builder.Add("Host", Configuration["HerokuHost"]);
-            builder.Add("Post", Configuration["HerokuPost"]);
-            builder.Add("Database", Configuration["HerokuDatabase"]);
-            builder.Add("Pooling", "true");
-            builder.Add("SSL Mode", "Require");
-            builder.Add("TrustServerCertificate", "True");
+            NpgsqlConnectionStringBuilder builder = new NpgsqlConnectionStringBuilder();
+            if (environment.IsDevelopment())
+            {
+                // This is how you add in the secrets to the connectionString 
+                // Append the secrets to the end of the string
+
+                builder.Add("User ID", Configuration["HerokuUsername"]);
+                builder.Add("Password", Configuration["HerokuPassword"]);
+                builder.Add("Port", 5432);
+                builder.Add("Database", Configuration["HerokuDatabase"]);
+                builder.Add("Host", Configuration["HerokuHost"]);
+            }
+            else
+            {
+                Uri dbUrl = new Uri(Configuration["DATABASE_URL"]);
+                string[] userInfo = dbUrl.UserInfo.Split(':');
+                builder.Add("User ID", userInfo[0]);
+                builder.Add("Password", userInfo[1]);
+                builder.Add("Host", dbUrl.Host);
+                builder.Add("Port", dbUrl.Port);
+                builder.Add("Database", dbUrl.LocalPath.TrimStart('/'));
+            }
 
             // make the null value of _connection equal the newly built connectionString
-            _connection = builder.ConnectionString;
+            _connection = builder.ToString();
 
             services.AddMvc();
 

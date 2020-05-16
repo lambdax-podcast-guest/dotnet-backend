@@ -17,10 +17,9 @@ namespace Guests.Models
     public class AppUserContext : IdentityDbContext<AppUser>
     {
         protected IWebHostEnvironment WebHostEnv { get; }
-        public AppUserContext(DbContextOptions<AppUserContext> options, IWebHostEnvironment webHostEnv)
+        public AppUserContext(DbContextOptions<AppUserContext> options)
             : base(options)
         {
-            WebHostEnv = webHostEnv;
         }
         // Inherit from this TimestampEntity class for your model to have CreatedAt and UpdatedAt Timestamps that are updated automatically. Unfortunately this will not work with our Identity Classes, as they already inherit from Identity
         public class TimestampEntity
@@ -52,7 +51,6 @@ namespace Guests.Models
                 .Ignore(p => p.LockoutEnabled);
 
             // get topics from DataInitializer and seed to db
-            var contentRootPath = WebHostEnv.ContentRootPath;
             string[] topicList = DataInitializer.Topics;
             int count = 1;
             foreach (string topic in topicList)
@@ -70,6 +68,8 @@ namespace Guests.Models
                 );
                 count++;
             }
+            builder.Entity<IdentityRole>().HasData(new IdentityRole { Name = "Host", NormalizedName = "Host".ToUpper() });
+            builder.Entity<IdentityRole>().HasData(new IdentityRole { Name = "Guest", NormalizedName = "Guest".ToUpper() });
         }
 
         public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default(CancellationToken))

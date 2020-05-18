@@ -6,10 +6,10 @@ using Guests.Controllers;
 using Microsoft.Extensions.Configuration;
 using Moq;
 using Microsoft.AspNetCore.Http;
-using Guests.Helpers;
-
-
+using System.Text.RegularExpressions;
 using Guests.Models;
+
+
 public class DatabaseFixture : IDisposable
 {
     public AppUserContext DbContext { get; }
@@ -40,18 +40,11 @@ public class DatabaseFixture : IDisposable
         DbContext.Database.EnsureCreated();
 
         // We need Identity Managers for our controller constructor, we'll have to mock them up
-        // we need user store for usermanager constructor
-        var userStoreMock = new Mock<IUserStore<AppUser>>().Object;
-        userManager = new Mock<UserManager<AppUser>>(userStoreMock, null, null, null, null, null, null, null, null).Object;
-
-        // we need role store for rolemanager constructor
-        var roleStoreMock = new Mock<IRoleStore<IdentityRole>>().Object;
-        roleManager = new Mock<RoleManager<IdentityRole>>(roleStoreMock, null, null, null, null).Object;
-
-        // we need context accessor and userPrincipalFactory for signManager
-        var contextAccessor = new Mock<IHttpContextAccessor>().Object;
-        var userPrincipalFactory = new Mock<IUserClaimsPrincipalFactory<AppUser>>().Object;
-        signManager = new Mock<SignInManager<AppUser>>(userManager, contextAccessor, userPrincipalFactory, null, null, null, null).Object;
+        // get the mocks we created
+        Mocks mocks = new Mocks();
+        userManager = mocks.userManager;
+        roleManager = mocks.roleManager;
+        signManager = mocks.signInManager;
 
         // generate an account controller so we aren't making a new one for every test
         accountController = new AccountController(userManager, signManager, roleManager, DbContext);

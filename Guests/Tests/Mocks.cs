@@ -40,7 +40,7 @@ public class Mocks
         var passwordHasher = new PasswordHasher<AppUser>();
         var userManagerMock = new Mock<UserManager<AppUser>>(userStoreMock, null, null, null, null, null, null, null, null);
         // set up userManager functions
-        // TODO
+        // We will call CreateAsync in Register, we want it to return success if it is provided a valid app user and password string, but we also need it to create an entry in the database
         userManagerMock.Setup(x => x.CreateAsync(It.IsAny<AppUser>(), It.IsAny<string>())).ReturnsAsync(IdentityResult.Success).Callback((AppUser user, string password) =>
         {
             user.PasswordHash = passwordHasher.HashPassword(user, password);

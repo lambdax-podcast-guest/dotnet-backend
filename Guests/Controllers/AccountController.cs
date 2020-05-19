@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Guests.Helpers;
 using System.Linq;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Configuration;
 
 namespace Guests.Controllers
 {
@@ -21,13 +22,16 @@ namespace Guests.Controllers
         private SignInManager<AppUser> _signManager;
         private RoleManager<IdentityRole> _roleManager;
         private AppUserContext _context;
+
+        private IConfiguration Configuration;
         // we need access to the userManager and signManager from identity, add them to the constructor so we have access to them
-        public AccountController(UserManager<AppUser> userManager, SignInManager<AppUser> signManager, RoleManager<IdentityRole> roleManager, AppUserContext context)
+        public AccountController(UserManager<AppUser> userManager, SignInManager<AppUser> signManager, RoleManager<IdentityRole> roleManager, AppUserContext context, IConfiguration configuration)
         {
             _userManager = userManager;
             _signManager = signManager;
             _roleManager = roleManager;
             _context = context;
+            Configuration = configuration;
         }
 
         /// <summary>Asynchronously gets a user's roles and user data from the database.</summary>
@@ -79,7 +83,7 @@ namespace Guests.Controllers
                     await _signManager.SignInAsync(user, false);
 
                     Tuple<IList<string>, AppUser> userWithRoles = await TokenizeUser(input.Email);
-                    string token = TokenManager.GenerateToken(userWithRoles);
+                    string token = TokenManager.GenerateToken(userWithRoles, Configuration);
 
                     return CreatedAtAction(nameof(Register), new { id = user.Id }, new { id = user.Id, token = token });
                 }
@@ -107,7 +111,7 @@ namespace Guests.Controllers
                 if (result.Succeeded)
                 {
                     Tuple<IList<string>, AppUser> userWithRoles = await TokenizeUser(input.Email);
-                    string token = TokenManager.GenerateToken(userWithRoles);
+                    string token = TokenManager.GenerateToken(userWithRoles, Configuration);
                     return Ok(new { token = token });
                 }
                 else

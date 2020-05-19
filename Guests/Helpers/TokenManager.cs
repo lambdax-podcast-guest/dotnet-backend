@@ -12,8 +12,8 @@ namespace Guests.Helpers
 {
     public class TokenManager
     {
-        public TokenManager(IConfiguration configuration) { }
-        public static string GenerateToken(Tuple<IList<string>, AppUser> user)
+        public TokenManager() { }
+        public static string GenerateToken(Tuple<IList<string>, AppUser> user, IConfiguration configuration)
         {
             ClaimsIdentity claimsIdentity = new ClaimsIdentity(user.Item1.Select(role => new Claim(ClaimTypes.Role, role)));
             claimsIdentity.AddClaim(new Claim(ClaimTypes.Email, user.Item2.Email));
@@ -23,12 +23,12 @@ namespace Guests.Helpers
 
             JwtSecurityToken token = new JwtSecurityToken
             (
-                issuer: Startup.Configuration["Guests:JwtIssuer"],
+                issuer: configuration["Guests:JwtIssuer"],
                 // access the claims within the claims identity
                 claims: claimsIdentity.Claims,
                 notBefore: DateTime.Now,
                 expires: DateTime.Now.AddDays(1),
-                signingCredentials: new SigningCredentials(new SymmetricSecurityKey(Encoding.ASCII.GetBytes(Startup.Configuration["Guests:JwtKey"])), SecurityAlgorithms.HmacSha256)
+                signingCredentials: new SigningCredentials(new SymmetricSecurityKey(Encoding.ASCII.GetBytes(configuration["Guests:JwtKey"])), SecurityAlgorithms.HmacSha256)
             );
 
             return handler.WriteToken(token);

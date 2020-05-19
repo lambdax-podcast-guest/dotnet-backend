@@ -32,16 +32,22 @@ namespace Guests.Models
         [StringLength(200)]
         public string Location { get; set; }
 
+        /// <summary>Summary of user</summary>
         public string Bio { get; set; }
 
+        /// <summary>An array of languages that the user is proficient in</summary>
         public string[] Languages { get; set; }
 
+        /// <summary>A list of the topics associated with the user</summary>
         public List<GuestTopic> GuestTopics { get; set; }
 
+        /// <summary>A list of hosts</summary>
         public List<PodcastHost> PodcastHosts { get; set; }
 
+        /// <summary>A list of guests</summary>
         public List<PodcastGuest> PodcastGuests { get; set; }
 
+        /// <summary>A list of invitations to a particular podcast</summary>
         public List<Invitation> Invitations { get; set; }
 
         // Ignoring Identity fields

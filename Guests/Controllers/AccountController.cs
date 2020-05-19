@@ -93,7 +93,7 @@ namespace Guests.Controllers
                     {
                         ModelState.AddModelError("", error.Description);
                     }
-                    return ValidationProblem(ModelState);
+                    return ValidationProblem(new ValidationProblemDetails(ModelState));
                 }
             }
 

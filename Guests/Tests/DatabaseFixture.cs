@@ -57,6 +57,7 @@ public class DatabaseFixture : IDisposable
                 .AddEntityFrameworkStores<AppUserContext>()
                 .AddDefaultTokenProviders();
 
+
         // add our jwt auth
         serviceCollection
                 .AddAuthentication(options =>

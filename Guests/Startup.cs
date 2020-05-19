@@ -39,7 +39,7 @@ namespace Guests
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddCors(options => options.AddPolicy("AllowAll",
-               builder => builder.WithOrigins("http://localhost:8080").AllowAnyHeader().AllowAnyMethod()));
+               builder => builder.WithOrigins(Configuration["CorsOrigin"]).AllowAnyHeader().AllowAnyMethod()));
             NpgsqlConnectionStringBuilder builder = new NpgsqlConnectionStringBuilder();
             if (environment.IsDevelopment())
             {

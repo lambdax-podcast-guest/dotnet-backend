@@ -28,6 +28,31 @@ namespace Guests.Models
             public DateTime UpdatedAt { get; set; }
         }
 
+        // extract the timestamp generation logic so it can be used to override both SaveChangesAsync and SaveChanges
+        private void GenerateTimestamps()
+        {
+            // Automatically set updated at and created at on all created and updated entries from all tables
+            // Use ChangeTracker to get all updated and added entries from the db
+            var entries = ChangeTracker
+                .Entries()
+                .Where(e => e.Entity is TimestampEntity && (
+                        e.State == EntityState.Added
+                        || e.State == EntityState.Modified));
+
+            foreach (var entityEntry in entries)
+            {
+                // We only got modified and newly added entities, set the updated timestamp on all of them
+
+                ((TimestampEntity)entityEntry.Entity).UpdatedAt = DateTime.Now;
+
+                // If the entry has just been added update its created at
+                if (entityEntry.State == EntityState.Added)
+                {
+                    ((TimestampEntity)entityEntry.Entity).CreatedAt = DateTime.Now;
+                }
+            }
+        }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             builder.ApplyConfiguration(new GuestsConfiguration());
@@ -74,27 +99,13 @@ namespace Guests.Models
 
         public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            // Automatically set updated at and created at on all created and updated entries from all tables
-            // Use ChangeTracker to get all updated and added entries from the db
-            var entries = ChangeTracker
-                .Entries()
-                .Where(e => e.Entity is TimestampEntity && (
-                        e.State == EntityState.Added
-                        || e.State == EntityState.Modified));
-
-            foreach (var entityEntry in entries)
-            {
-                // We only got modified and newly added entities, set the updated timestamp on all of them
-
-                ((TimestampEntity)entityEntry.Entity).UpdatedAt = DateTime.Now;
-
-                // If the entry has just been added update its created at
-                if (entityEntry.State == EntityState.Added)
-                {
-                    ((TimestampEntity)entityEntry.Entity).CreatedAt = DateTime.Now;
-                }
-            }
+            GenerateTimestamps();
             return (await base.SaveChangesAsync(true, cancellationToken));
+        }
+        public override int SaveChanges()
+        {
+            GenerateTimestamps();
+            return base.SaveChanges();
         }
 
         public DbSet<Guest> Guests { get; set; }

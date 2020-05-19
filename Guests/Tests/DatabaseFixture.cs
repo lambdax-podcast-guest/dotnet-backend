@@ -41,7 +41,7 @@ public class DatabaseFixture : IDisposable
 
         // We need Identity Managers for our controller constructor, we'll have to mock them up
         // get the mocks we created
-        Mocks mocks = new Mocks();
+        Mocks mocks = new Mocks(DbContext);
         userManager = mocks.userManager;
         roleManager = mocks.roleManager;
         signManager = mocks.signInManager;

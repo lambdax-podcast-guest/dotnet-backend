@@ -10,10 +10,10 @@ public class Mocks
     public UserManager<AppUser> userManager { get; }
 
     public SignInManager<AppUser> signInManager { get; }
-    public Mocks()
+    public Mocks(AppUserContext DbContext)
     {
         // mock userManager
-        userManager = CreateUserManager();
+        userManager = CreateUserManager(DbContext);
 
         // mock roleManager
         roleManager = CreateRoleManager();
@@ -25,6 +25,7 @@ public class Mocks
     public RoleManager<IdentityRole> CreateRoleManager()
     {
         // mock roleManager
+
         var roleStoreMock = new Mock<IRoleStore<IdentityRole>>().Object;
         var roleManagerMock = new Mock<RoleManager<IdentityRole>>(roleStoreMock, null, null, null, null);
         // set up roleManager functions
@@ -32,14 +33,23 @@ public class Mocks
         roleManagerMock.Setup(x => x.RoleExistsAsync(It.IsRegex("guest||host", RegexOptions.IgnoreCase))).ReturnsAsync(true);
         return roleManagerMock.Object;
     }
-    public UserManager<AppUser> CreateUserManager()
+    public UserManager<AppUser> CreateUserManager(AppUserContext DbContext)
     {
         // mock userManager
         var userStoreMock = new Mock<IUserStore<AppUser>>().Object;
+        var passwordHasher = new PasswordHasher<AppUser>();
         var userManagerMock = new Mock<UserManager<AppUser>>(userStoreMock, null, null, null, null, null, null, null, null);
         // set up userManager functions
         // TODO
-        // set MockUserManager field
+        userManagerMock.Setup(x => x.CreateAsync(It.IsAny<AppUser>(), It.IsAny<string>())).ReturnsAsync(IdentityResult.Success).Callback((AppUser user, string password) =>
+        {
+            user.PasswordHash = passwordHasher.HashPassword(user, password);
+            DbContext.Add(user);
+            DbContext.SaveChanges();
+        });
+        userManagerMock.Setup(x => x.Users).Returns(DbContext.Users);
+        // https://medium.com/@samueleresca/unit-testing-asp-net-core-identity-e2b18254cc8a
+        // userManagerMock.Setup(x => x.Users).Returns(users);
         return userManagerMock.Object;
     }
 

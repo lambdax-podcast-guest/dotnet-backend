@@ -11,12 +11,9 @@ namespace GuestTests
     public class AccountTests : IClassFixture<DatabaseFixture>
     {
         DatabaseFixture fixture;
-        ITestOutputHelper _outputter;
-
-        public AccountTests(DatabaseFixture fixture, ITestOutputHelper outputter)
+        public AccountTests(DatabaseFixture fixture)
         {
             this.fixture = fixture;
-            _outputter = outputter;
         }
 
         /// <summary>Test that the register endpoint returns a token when the request is successful</summary>
@@ -30,11 +27,12 @@ namespace GuestTests
 
             var result = await controller.Register(guestUser);
 
-            var obj = Assert.IsType<CreatedAtActionResult>(result);
-            // bool hasToken = obj.Value.token != null;
+            // this will assert that the response returned a CreatedAtActionResult, and if it did it will cast our result (which is an IActionResult) to a CreatedAtActionResult
+            CreatedAtActionResult okResult = Assert.IsType<CreatedAtActionResult>(result);
 
-
-            // Assert.True(hasToken);
+            // Assert that the response object has a token property
+            bool hasToken = okResult.Value.GetType().GetProperty("token") != null;
+            Assert.True(hasToken);
         }
     }
 }

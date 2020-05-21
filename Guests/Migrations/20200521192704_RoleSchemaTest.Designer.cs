@@ -3,15 +3,17 @@ using System;
 using Guests.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace Guests.Migrations
 {
     [DbContext(typeof(AppUserContext))]
-    partial class AppUserContextModelSnapshot : ModelSnapshot
+    [Migration("20200521192704_RoleSchemaTest")]
+    partial class RoleSchemaTest
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

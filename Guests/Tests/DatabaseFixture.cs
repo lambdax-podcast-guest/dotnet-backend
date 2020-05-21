@@ -1,19 +1,13 @@
 using System;
 using Npgsql;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Identity;
-using Guests.Controllers;
 using Microsoft.Extensions.Configuration;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Guests.Models;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
 using Microsoft.AspNetCore.Hosting;
 using Guests;
 using Microsoft.AspNetCore.TestHost;
 using System.Net.Http;
+using Xunit;
 
 
 
@@ -69,4 +63,12 @@ public class DatabaseFixture : IDisposable
         DbContext.Database.EnsureDeleted();
         testServer.Dispose();
     }
+}
+
+[CollectionDefinition("DbCollection")]
+public class DatabaseCollection : ICollectionFixture<DatabaseFixture>
+{
+    // This class has no code, and is never created. Its purpose is simply
+    // to be the place to apply [CollectionDefinition] and all the
+    // ICollectionFixture<> interfaces.
 }

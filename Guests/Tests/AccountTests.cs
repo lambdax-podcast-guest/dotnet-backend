@@ -1,10 +1,6 @@
-using System;
-using System.Text;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using Xunit;
 using Guests.Models.Inputs;
-using Microsoft.AspNetCore.Mvc;
 using Xunit.Abstractions;
 using System.Net.Http;
 using System.Net.Http.Json;
@@ -12,7 +8,8 @@ using System.Net.Http.Headers;
 
 namespace GuestTests
 {
-    public class AccountTests : IClassFixture<DatabaseFixture>
+    [Collection("DbCollection")]
+    public class AccountTests
     {
         DatabaseFixture fixture;
         private readonly ITestOutputHelper outputter;

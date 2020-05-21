@@ -14,3 +14,5 @@ jobs:
           dotnet-version: 3.0.103
       - name: Build with dotnet
         run: dotnet build --configuration Release
+      - name: Test
+        run: dotnet test --verbosity normal

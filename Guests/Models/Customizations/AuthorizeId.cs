@@ -17,8 +17,7 @@ namespace Guests.Models.Customizations
         public AuthorizeIdAttribute() { }
         public AuthorizeIdAttribute(params string[] roles)
         {
-            foreach (string role in roles) Console.WriteLine("\n" + role + "\n");
-            // Add each role from roleArr to requiredRoles
+            // Add each role from params to requiredRoles
             foreach (string role in roles) requiredRoles.Add(role);
         }
         public void OnAuthorization(AuthorizationFilterContext context)

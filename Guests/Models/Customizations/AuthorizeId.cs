@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -11,8 +12,10 @@ namespace Guests.Models.Customizations
         public AuthorizeIdAttribute() { }
         public void OnAuthorization(AuthorizationFilterContext context)
         {
+            // Get roles for user
+            Claim[] roles = context.HttpContext.User.Claims.Where(claim => claim.Type == ClaimTypes.Role).ToArray();
             // If the user is an admin, immediately let them through
-            if (context.HttpContext.User.Claims.First(claim => claim.Value == "Admin").Value.Length > 0) return;
+            if (Array.Exists(roles, role => role.Value == "Admin")) return;
             // Grab the path of the request
             string path = context.HttpContext.Request.Path;
             // Split the path and get the last item in the array (would be the id - must be a better way to get this done)

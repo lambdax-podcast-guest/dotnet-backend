@@ -83,7 +83,7 @@ namespace Guests.Controllers
                     await _signManager.SignInAsync(user, false);
 
                     Tuple<IList<string>, AppUser> userWithRoles = await TokenizeUser(input.Email);
-                    string token = TokenManager.GenerateToken(userWithRoles, Configuration);
+                    string token = TokenManager.GenerateToken(userWithRoles);
 
                     return CreatedAtAction(nameof(Register), new { id = user.Id }, new { id = user.Id, token = token });
                 }
@@ -111,7 +111,7 @@ namespace Guests.Controllers
                 if (result.Succeeded)
                 {
                     Tuple<IList<string>, AppUser> userWithRoles = await TokenizeUser(input.Email);
-                    string token = TokenManager.GenerateToken(userWithRoles, Configuration);
+                    string token = TokenManager.GenerateToken(userWithRoles);
                     return Ok(new { token = token });
                 }
                 else

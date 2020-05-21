@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
 using System.Linq;
 using System;
+using Guests.Entities;
 
 namespace Guests.Controllers
 {
@@ -33,7 +34,7 @@ namespace Guests.Controllers
             return Ok(guests);
         }
 
-        [AuthorizeId("Host, Guest")]
+        [AuthorizeId(Role.Host, Role.Guest)]
         [HttpGet("{id}")]
         public async Task<ActionResult<IEnumerable<AppUser>>> GetGuests(string id)
         {

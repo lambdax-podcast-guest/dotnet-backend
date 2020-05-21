@@ -15,12 +15,11 @@ namespace Guests.Models.Customizations
         // Initialize list with Admin
         public List<string> requiredRoles = new List<string> { Role.Admin };
         public AuthorizeIdAttribute() { }
-        public AuthorizeIdAttribute(string roles)
+        public AuthorizeIdAttribute(params string[] roles)
         {
-            // Split the role string, trim (remove white space from) the values, then convert it to an array
-            string[] roleArr = roles.Split(",").Select(role => role.Trim()).ToArray();
+            foreach (string role in roles) Console.WriteLine("\n" + role + "\n");
             // Add each role from roleArr to requiredRoles
-            foreach (string role in roleArr) requiredRoles.Add(role);
+            foreach (string role in roles) requiredRoles.Add(role);
         }
         public void OnAuthorization(AuthorizationFilterContext context)
         {

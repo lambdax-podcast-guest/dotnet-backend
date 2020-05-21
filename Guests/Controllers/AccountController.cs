@@ -20,7 +20,7 @@ namespace Guests.Controllers
         private SignInManager<AppUser> _signManager;
         private RoleManager<IdentityRole> _roleManager;
         private AppUserContext _context;
-        // we need access to the userManager and signManager from identity, add them to the constructor so we have access to them
+        // UserManager and SignInManager come from Identity
         public AccountController(UserManager<AppUser> userManager, SignInManager<AppUser> signManager, RoleManager<IdentityRole> roleManager, AppUserContext context)
         {
             _userManager = userManager;

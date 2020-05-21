@@ -13,7 +13,6 @@ using Guests.Helpers;
 
 namespace Guests.Models
 {
-
     public class AppUserContext : IdentityDbContext<AppUser>
     {
         protected IWebHostEnvironment WebHostEnv { get; }
@@ -109,20 +108,12 @@ namespace Guests.Models
         }
 
         public DbSet<Guest> Guests { get; set; }
-
         public DbSet<Topic> Topics { get; set; }
-
         public DbSet<Podcast> Podcasts { get; set; }
-
         public DbSet<PodcastTopic> PodcastTopics { get; set; }
-
         public DbSet<GuestTopic> GuestTopics { get; set; }
-
         public DbSet<PodcastHost> PodcastHosts { get; set; }
-
         public DbSet<PodcastGuest> PodcastGuests { get; set; }
         public DbSet<Invitation> Invitations { get; set; }
-
     }
-
 }

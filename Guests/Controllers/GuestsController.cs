@@ -33,7 +33,7 @@ namespace Guests.Controllers
             return Ok(guests);
         }
 
-        [AuthorizeId]
+        [AuthorizeId("Host, Guest")]
         [HttpGet("{id}")]
         public async Task<ActionResult<IEnumerable<AppUser>>> GetGuests(string id)
         {

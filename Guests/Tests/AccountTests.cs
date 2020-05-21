@@ -1,4 +1,4 @@
-
+using System;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -15,9 +15,14 @@ namespace GuestTests
     public class AccountTests : IClassFixture<DatabaseFixture>
     {
         DatabaseFixture fixture;
-        public AccountTests(DatabaseFixture fixture)
+        private readonly ITestOutputHelper output;
+        public AccountTests(DatabaseFixture fixture, ITestOutputHelper output)
         {
             this.fixture = fixture;
+            // Use output.WriteLine to print to console
+            // This ITestOutputHelper class only knows how to use the Visual Studio Output though, so to tell it to use the console here in VSCode, run the test command like this:
+            // dotnet test -l "console;verbosity=detailed"
+            this.output = output;
         }
 
         // -------------------------------------------------------------------------------------------------
@@ -40,6 +45,7 @@ namespace GuestTests
 
             bool isSuccessful = result.IsSuccessStatusCode;
             Assert.True(isSuccessful);
+            output.WriteLine("something something");
             // this will assert that the response returned a CreatedAtActionResult, and if it did it will cast our result (which is an IActionResult) to a CreatedAtActionResult
             // CreatedAtActionResult okResult = Assert.IsType<CreatedAtActionResult>(result.Content);
 

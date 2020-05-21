@@ -6,13 +6,14 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using Guests.Entities;
 
 namespace Guests.Models.Customizations
 {
     public class AuthorizeIdAttribute : AuthorizeAttribute, IAuthorizationFilter
     {
         // Initialize list with Admin
-        public List<string> requiredRoles = new List<string> { "Admin" };
+        public List<string> requiredRoles = new List<string> { Role.Admin };
         public AuthorizeIdAttribute() { }
         public AuthorizeIdAttribute(string roles)
         {

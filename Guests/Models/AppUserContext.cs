@@ -92,8 +92,6 @@ namespace Guests.Models
                 );
                 count++;
             }
-            builder.Entity<IdentityRole>().HasData(new IdentityRole { Name = "Host", NormalizedName = "Host".ToUpper() });
-            builder.Entity<IdentityRole>().HasData(new IdentityRole { Name = "Guest", NormalizedName = "Guest".ToUpper() });
         }
 
         public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default(CancellationToken))

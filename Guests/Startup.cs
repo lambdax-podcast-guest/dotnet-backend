@@ -52,6 +52,14 @@ namespace Guests
                 builder.Add("Database", Configuration["HerokuDatabase"]);
                 builder.Add("Host", Configuration["HerokuHost"]);
             }
+            else if (environment.IsEnvironment("Test"))
+            {
+                builder.Add("User ID", Configuration["TestUsername"]);
+                builder.Add("Password", Configuration["TestPassword"]);
+                builder.Add("Port", 5432);
+                builder.Add("Database", Configuration["TestDatabase"]);
+                builder.Add("Host", Configuration["TestHost"]);
+            }
             else
             {
                 Uri dbUrl = new Uri(Configuration["DATABASE_URL"]);

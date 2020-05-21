@@ -40,11 +40,7 @@ namespace Guests
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddCors(options => options.AddPolicy("Custom",
-               builder =>
-               {
-                   string[] origins = Configuration["CorsOrigin"].Split(' ');
-                   builder.WithOrigins(origins).AllowAnyHeader().AllowAnyMethod();
-               }));
+               builder => builder.WithOrigins(Configuration["CorsOrigin"].Split(' ')).AllowAnyHeader().AllowAnyMethod()));
             NpgsqlConnectionStringBuilder builder = new NpgsqlConnectionStringBuilder();
             if (environment.IsDevelopment())
             {

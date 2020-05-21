@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Guests.Models;
+using Guests.Models.Customizations;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
@@ -37,18 +38,12 @@ namespace Guests.Controllers
         }
 
         // GET: api/guests/1
+        [AuthorizeId]
         [HttpGet("{id}")]
         public async Task<ActionResult<IEnumerable<AppUser>>> GetGuests(string id)
         {
-
             var guest = await _userManager.FindByIdAsync(id);
-            var roles = await _userManager.GetRolesAsync(guest);
-            bool isGuest = Array.Exists(roles.ToArray(), role => role == "Guest" || role == "guest");
-
-            if (guest == null || !isGuest)
-            {
-                return NotFound("No such guest found, please check again...");
-            }
+            if (guest == null) return NotFound("No such guest found, please check again...");
             return Ok(guest);
         }
 

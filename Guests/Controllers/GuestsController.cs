@@ -30,10 +30,7 @@ namespace Guests.Controllers
 
             var guests = await _userManager.GetUsersInRoleAsync("Guest");
             // If there are no guests don't bother normalizing the output
-            if (guests.Count == 0)
-            {
-                return Ok("Sorry, there are no guests...");
-            }
+            if (guests.Count == 0) return Ok("Sorry, there are no guests...");
             return Ok(guests);
         }
 

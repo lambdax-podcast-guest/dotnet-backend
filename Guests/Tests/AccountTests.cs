@@ -15,14 +15,21 @@ namespace GuestTests
     public class AccountTests : IClassFixture<DatabaseFixture>
     {
         DatabaseFixture fixture;
-        private readonly ITestOutputHelper output;
+        private readonly ITestOutputHelper outputter;
         public AccountTests(DatabaseFixture fixture, ITestOutputHelper output)
         {
             this.fixture = fixture;
             // Use output.WriteLine to print to console
             // This ITestOutputHelper class only knows how to use the Visual Studio Output though, so to tell it to use the console here in VSCode, run the test command like this:
             // dotnet test -l "console;verbosity=detailed"
-            this.output = output;
+            outputter = output;
+        }
+
+        // use this to deserialize register output
+        public class RegisterOutput
+        {
+            public string id { get; set; }
+            public string token { get; set; }
         }
 
         // -------------------------------------------------------------------------------------------------
@@ -31,27 +38,30 @@ namespace GuestTests
         [Fact]
         public async void TestRegisterReturnsToken()
         {
-            // var controller = fixture.accountController;
+            // generate an array of roles for our fake user
             string[] roles = new string[] { "Guest" };
 
             RegisterInput guestUser = new RegisterInput() { FirstName = "Bob", LastName = "Ross", Roles = roles, Email = "BobRoss@yahoo.com", Password = "HappyLittleMistakes1!" };
 
+            // turn the register input into json and set the request headers
             var content = JsonContent.Create(guestUser);
             content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
 
+            // get the response
+            HttpResponseMessage response = await fixture.httpClient.PostAsync("/api/account/register", content);
 
+            // assert it is successful
+            Assert.True(response.IsSuccessStatusCode);
 
-            var result = await fixture.httpClient.PostAsync("/api/account/register", content);
+            // await the async action of getting the response content as a string
+            string responseString = await response.Content.ReadAsStringAsync();
 
-            bool isSuccessful = result.IsSuccessStatusCode;
-            Assert.True(isSuccessful);
-            output.WriteLine("something something");
-            // this will assert that the response returned a CreatedAtActionResult, and if it did it will cast our result (which is an IActionResult) to a CreatedAtActionResult
-            // CreatedAtActionResult okResult = Assert.IsType<CreatedAtActionResult>(result.Content);
+            // deserialize the string into what we expect the output to look like
+            RegisterOutput resultAsObject = JsonSerializer.Deserialize<RegisterOutput>(responseString);
 
-            // // Assert that the response object has a token property
-            // bool hasToken = result.Content.GetType().GetProperty("token") != null;
-            // Assert.True(hasToken);
+            // assert the object we created from the response has a token field and its value is not null
+            Assert.True(resultAsObject.token != null);
+
         }
 
         // // -------------------------------------------------------------------------------------------------

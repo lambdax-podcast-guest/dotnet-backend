@@ -5,6 +5,8 @@ using Guests.Models.Customizations;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
+using System.Linq;
+using System;
 
 namespace Guests.Controllers
 {
@@ -36,7 +38,12 @@ namespace Guests.Controllers
         public async Task<ActionResult<IEnumerable<AppUser>>> GetGuests(string id)
         {
             var guest = await _userManager.FindByIdAsync(id);
-            if (guest == null) return NotFound("No such guest found, please check again...");
+
+            var roles = await _userManager.GetRolesAsync(guest);
+
+            bool isGuest = Array.Exists(roles.ToArray(), role => role == "Guest" || role == "guest");
+
+            if (guest == null || !isGuest) return NotFound("No such guest found, please check again...");
             return Ok(guest);
         }
 

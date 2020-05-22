@@ -14,11 +14,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using System.Data.SqlClient;
-using System.Data.OleDb;
-using System.Data.OracleClient;
-using System.Data.Odbc;
-using System.Linq;
+using Microsoft.Extensions.Logging;
 using Npgsql;
 
 namespace Guests
@@ -35,6 +31,7 @@ namespace Guests
         // internal and static for dependency injection within any child
         internal static IConfiguration Configuration { get; private set; }
         internal static IWebHostEnvironment environment { get; private set; }
+
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -135,6 +132,16 @@ namespace Guests
                         ValidateAudience = false
                     };
                 });
+
+            // add logging in the test env and dev env
+            if (environment.IsEnvironment("Test") || environment.IsDevelopment())
+            {
+                services.AddLogging(logging =>
+                {
+                    logging.AddConsole();
+                    logging.AddDebug();
+                });
+            }
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

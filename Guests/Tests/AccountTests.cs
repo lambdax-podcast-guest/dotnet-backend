@@ -1,23 +1,26 @@
-
-using System.Text;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using Xunit;
 using Guests.Models.Inputs;
-using Microsoft.AspNetCore.Mvc;
 using Xunit.Abstractions;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Net.Http.Headers;
+using Microsoft.AspNetCore.Mvc;
 
 namespace GuestTests
 {
-    public class AccountTests : IClassFixture<DatabaseFixture>
+    [Collection("DbCollection")]
+    public class AccountTests
     {
         DatabaseFixture fixture;
-        public AccountTests(DatabaseFixture fixture)
+        private readonly ITestOutputHelper outputter;
+        public AccountTests(DatabaseFixture fixture, ITestOutputHelper output)
         {
             this.fixture = fixture;
+            // Use output.WriteLine to print to console
+            // This ITestOutputHelper class only knows how to use the Visual Studio Output though, so to tell it to use the console here in VSCode, run the test command like this:
+            // dotnet test -l "console;verbosity=detailed"
+            outputter = output;
         }
 
         // -------------------------------------------------------------------------------------------------
@@ -26,45 +29,59 @@ namespace GuestTests
         [Fact]
         public async void TestRegisterReturnsToken()
         {
-            // var controller = fixture.accountController;
+            // generate an array of roles for our fake user
             string[] roles = new string[] { "Guest" };
 
             RegisterInput guestUser = new RegisterInput() { FirstName = "Bob", LastName = "Ross", Roles = roles, Email = "BobRoss@yahoo.com", Password = "HappyLittleMistakes1!" };
 
+            // turn the register input into json and set the request headers
             var content = JsonContent.Create(guestUser);
             content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
 
+            // get the response
+            HttpResponseMessage response = await fixture.httpClient.PostAsync("/api/account/register", content);
 
+            // assert it is successful
+            Assert.True(response.IsSuccessStatusCode);
 
-            var result = await fixture.httpClient.PostAsync("/api/account/register", content);
+            // deserialize the string into what we expect the output to look like
+            RegisterOutput resultAsObject = await JsonSerializer.DeserializeAsync<RegisterOutput>(response.Content.ReadAsStreamAsync().Result);
 
-            bool isSuccessful = result.IsSuccessStatusCode;
-            Assert.True(isSuccessful);
-            // this will assert that the response returned a CreatedAtActionResult, and if it did it will cast our result (which is an IActionResult) to a CreatedAtActionResult
-            // CreatedAtActionResult okResult = Assert.IsType<CreatedAtActionResult>(result.Content);
+            // assert the object we created from the response has a token field and its value is not null
+            Assert.True(resultAsObject.token != null);
 
-            // // Assert that the response object has a token property
-            // bool hasToken = result.Content.GetType().GetProperty("token") != null;
-            // Assert.True(hasToken);
         }
 
-        // // -------------------------------------------------------------------------------------------------
-        // /// <summary>Test that the register endpoint returns a bad request if someone tries to register with the same email twice</summary>
-        // // -------------------------------------------------------------------------------------------------
-        // [Fact]
-        // public async void TestRegisterReturnsBadRequestIfEmailExists()
-        // {
-        //     var controller = fixture.accountController;
-        //     string[] roles = new string[] { "Guest" };
+        // -------------------------------------------------------------------------------------------------
+        /// <summary>Test that the register endpoint returns a bad request if someone tries to register with the same email twice</summary>
+        // -------------------------------------------------------------------------------------------------
+        [Fact]
+        public async void TestRegisterReturnsBadRequestIfEmailExists()
+        {
+            string[] roles = new string[] { "Guest" };
 
-        //     // register the same user as in the last request: it exists in the db, so we should get 400 back
-        //     RegisterInput guestUser = new RegisterInput() { FirstName = "Bob", LastName = "Ross", Roles = roles, Email = "BobRoss@yahoo.com", Password = "HappyLittleMistakes1!" };
+            // register the same user as in the last request: it exists in the db, so we should get 400 back
+            RegisterInput guestUser = new RegisterInput() { FirstName = "Bob", LastName = "Ross", Roles = roles, Email = "BobRoss@yahoo.com", Password = "HappyLittleMistakes1!" };
 
-        //     var result = await controller.Register(guestUser);
+            // turn the register input into json and set the request headers
+            var content = JsonContent.Create(guestUser);
+            content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
 
-        //     // this will assert that the response returned a BadRequestObjectResult, and if it did it will cast our result (which is an IActionResult) to a BadRequestObjectResult
-        //     BadRequestObjectResult badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
-        // }
+            // get the response
+            HttpResponseMessage response = await fixture.httpClient.PostAsync("/api/account/register", content);
+
+            // assert it is NOT successful
+            Assert.False(response.IsSuccessStatusCode);
+
+            // deserialize the stream into what we expect the output to look like
+            CustomBadRequest responseObject = await JsonSerializer.DeserializeAsync<CustomBadRequest>(response.Content.ReadAsStreamAsync().Result);
+
+            // the errors string needs to be deserialized into an object
+            Errors errors = JsonSerializer.Deserialize<Errors>(responseObject.errors.ToString());
+
+            // Assert that the duplicate email error exists on the errors field
+            Assert.True(errors.DuplicateEmail != null);
+        }
 
         // // -------------------------------------------------------------------------------------------------
         // /// <summary>Test that the register endpoint returns a bad request on weak passwords. The default password validation from Identity requires the password have an uppercase char, a lowercase char, a digit, and a non-alphanumeric char, and must also be at least six characters long</summary>

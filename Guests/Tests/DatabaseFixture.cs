@@ -8,6 +8,7 @@ using Guests;
 using Microsoft.AspNetCore.TestHost;
 using System.Net.Http;
 using Xunit;
+using System.Text.Json;
 
 
 
@@ -20,6 +21,8 @@ public class DatabaseFixture : IDisposable
     public HttpClient httpClient { get; }
 
     public TestServer testServer { get; }
+
+    // public JsonDocument jsonDocument {get;}
     public DatabaseFixture()
     {
         // get configuration in order to create our connection string
@@ -56,6 +59,9 @@ public class DatabaseFixture : IDisposable
 
         // create the http client
         httpClient = testServer.CreateClient();
+
+        // get the json document for handling json in requests
+        // jsonDocument = new JsonDocument();
     }
 
     public void Dispose()

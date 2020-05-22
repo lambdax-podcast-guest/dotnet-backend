@@ -34,8 +34,7 @@ namespace GuestTests
             RegisterInput guestUser = new RegisterInput() { FirstName = "Bob", LastName = "Ross", Roles = roles, Email = "BobRoss@yahoo.com", Password = "HappyLittleMistakes1!" };
 
             // turn the register input into json and set the request headers
-            var content = JsonContent.Create(guestUser);
-            content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+            var content = JsonHelper.CreatePostContent(guestUser);
 
             // get the response
             HttpResponseMessage response = await fixture.httpClient.PostAsync("/api/account/register", content);
@@ -63,8 +62,7 @@ namespace GuestTests
             RegisterInput guestUser = new RegisterInput() { FirstName = "Bob", LastName = "Ross", Roles = roles, Email = "BobRoss@yahoo.com", Password = "HappyLittleMistakes1!" };
 
             // turn the register input into json and set the request headers
-            var content = JsonContent.Create(guestUser);
-            content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+            var content = JsonHelper.CreatePostContent(guestUser);
 
             // get the response
             HttpResponseMessage response = await fixture.httpClient.PostAsync("/api/account/register", content);
@@ -87,8 +85,7 @@ namespace GuestTests
         public async void TestRegisterPasswordValidation(RegisterInput guestUser, string errorMessage)
         {
             // turn the register input into json and set the request headers
-            var content = JsonContent.Create(guestUser);
-            content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+            var content = JsonHelper.CreatePostContent(guestUser);
 
             // get the response
             HttpResponseMessage response = await fixture.httpClient.PostAsync("/api/account/register", content);

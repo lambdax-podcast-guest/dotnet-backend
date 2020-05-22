@@ -28,7 +28,7 @@ namespace Guests.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<AppUser>>> GetGuests()
         {
-            var guests = await _userManager.GetUsersInRoleAsync("Guest");
+            var guests = await _userManager.GetUsersInRoleAsync(Role.Guest);
             // If there are no guests don't bother normalizing the output
             if (guests.Count == 0) return Ok("Sorry, there are no guests...");
             // Populate roles for all users

@@ -1,7 +1,8 @@
+using System;
+using System.Linq;
 using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Net.Http.Json;
 using System.Text.Json;
+using Guests.Models;
 using Guests.Models.Inputs;
 using Xunit;
 using Xunit.Abstractions;
@@ -98,6 +99,38 @@ namespace GuestTests
 
             // Assert the expected error message exists on the error object
             Assert.True(errors.GetType().GetProperty(errorMessage) != null);
+        }
+
+        // -------------------------------------------------------------------------------------------------
+        /// <summary>Test that the user can be found in the database once they are registered</summary>
+        // -------------------------------------------------------------------------------------------------
+        [Fact]
+        public async void TestRegisterCreatesUserInDatabase()
+        {
+            // generate an array of roles for our fake user
+            string[] roles = new string[] { "Guest" };
+            // register a new user
+            RegisterInput guestUser = new RegisterInput() { FirstName = "Unique", LastName = "User", Roles = roles, Email = "UniqueUser@yahoo.com", Password = "Unique1!" };
+
+            // turn the register input into json and set the request headers
+            var content = JsonHelper.CreatePostContent(guestUser);
+
+            // get the response
+            HttpResponseMessage response = await fixture.httpClient.PostAsync("/api/account/register", content);
+
+            // assert it is successful
+            Assert.True(response.IsSuccessStatusCode);
+
+            // query the database directly for the user we just made
+            AppUser[] user = fixture.DbContext.Users.Where(u => u.Email == guestUser.Email).ToArray();
+
+            // assert the query found something and only found one thing
+            Assert.NotEmpty(user);
+            Assert.True(user.Length == 1);
+
+            // assert the returned object is the right type and contains the expected data
+            Assert.IsType(Type.GetType(typeof(AppUser).AssemblyQualifiedName), user[0]);
+            Assert.True(user[0].GetType().GetProperty("Email").GetValue(user[0]).ToString() == guestUser.Email);
         }
     }
 }

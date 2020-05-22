@@ -72,11 +72,8 @@ namespace GuestTests
             // assert it is NOT successful
             Assert.False(response.IsSuccessStatusCode);
 
-            // deserialize the stream into what we expect the output to look like
-            CustomBadRequest responseObject = await JsonSerializer.DeserializeAsync<CustomBadRequest>(response.Content.ReadAsStreamAsync().Result);
-
-            // the errors string needs to be deserialized into an object
-            Errors errors = JsonSerializer.Deserialize<Errors>(responseObject.errors.ToString());
+            // deserialize the stream and get the errors using our helper function
+            Errors errors = await JsonHelper.DeserializeResponseAndReturnErrors(response);
 
             // Assert that the duplicate email error exists on the errors field
             Assert.True(errors.DuplicateEmail != null);
@@ -99,11 +96,8 @@ namespace GuestTests
             // assert it is NOT successful
             Assert.False(response.IsSuccessStatusCode);
 
-            // deserialize the stream into what we expect the output to look like
-            CustomBadRequest responseObject = await JsonSerializer.DeserializeAsync<CustomBadRequest>(response.Content.ReadAsStreamAsync().Result);
-
-            // the errors string needs to be deserialized into an object
-            Errors errors = JsonSerializer.Deserialize<Errors>(responseObject.errors.ToString());
+            // deserialize the stream and get the errors using our helper function
+            Errors errors = await JsonHelper.DeserializeResponseAndReturnErrors(response);
 
             // Assert the expected error message exists on the error object
             Assert.True(errors.GetType().GetProperty(errorMessage) != null);

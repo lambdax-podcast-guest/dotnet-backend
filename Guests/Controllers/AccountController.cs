@@ -1,20 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using Guests.Helpers;
 using Guests.Models;
-using Guests.Models.Inputs;
 using Guests.Models.Customizations;
+using Guests.Models.Inputs;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Guests.Helpers;
-using System.Linq;
 
 namespace Guests.Controllers
 {
     [Route("api/[controller]/[action]")]
     [ApiController]
     public class AccountController : ControllerBase
-
     {
         private UserManager<AppUser> _userManager;
         private SignInManager<AppUser> _signManager;
@@ -124,7 +123,9 @@ namespace Guests.Controllers
             user.Languages = input.Languages;
             // Save the changes to the database
             await _context.SaveChangesAsync();
-            // Return the saved user
+            // Populate user with roles
+            await _userManager.PopulateRolesAsync(user);
+            // Return the saved user with 200 status
             return Ok(user);
 
         }
@@ -137,14 +138,18 @@ namespace Guests.Controllers
             AppUser user = await _userManager.FindByIdAsync(id);
             // Return 404 status if user not found
             if (user == null) return NotFound("The user with the specified ID was not found.");
-            // Removes the user from the database
+            // Remove the user from the database
             _context.Remove(user);
             // Save the changes to the database
             await _context.SaveChangesAsync();
             // Return 404 if no other users are left in the database
             if (_context.Users == null) return NotFound("No users found.");
             // Return what users are left in the database
-            return Ok(_context.Users);
+            AppUser[] users = _context.Users.ToArray();
+            // Populate roles for all users
+            await Task.WhenAll(users.Select(user => _userManager.PopulateRolesAsync(user)));
+            // Return all users with 200 status
+            return Ok(users);
         }
     }
 }

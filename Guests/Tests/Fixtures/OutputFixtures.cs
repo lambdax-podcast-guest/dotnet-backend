@@ -19,6 +19,10 @@ public class Errors
 {
     public string[] DuplicateEmail { get; set; }
     public string[] DuplicateUserName { get; set; }
+    public string[] PasswordRequiresNonAlphanumeric { get; set; }
+    public string[] PasswordRequiresDigit { get; set; }
+    public string[] PasswordRequiresLower { get; set; }
+    public string[] PasswordRequiresUpper { get; set; }
+    public string[] PasswordTooShort { get; set; }
+
 }
-
-

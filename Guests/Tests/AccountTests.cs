@@ -1,11 +1,10 @@
-using System.Text.Json;
-using Xunit;
-using Guests.Models.Inputs;
-using Xunit.Abstractions;
 using System.Net.Http;
-using System.Net.Http.Json;
 using System.Net.Http.Headers;
-using Microsoft.AspNetCore.Mvc;
+using System.Net.Http.Json;
+using System.Text.Json;
+using Guests.Models.Inputs;
+using Xunit;
+using Xunit.Abstractions;
 
 namespace GuestTests
 {
@@ -83,40 +82,31 @@ namespace GuestTests
             Assert.True(errors.DuplicateEmail != null);
         }
 
-        // // -------------------------------------------------------------------------------------------------
-        // /// <summary>Test that the register endpoint returns a bad request on weak passwords. The default password validation from Identity requires the password have an uppercase char, a lowercase char, a digit, and a non-alphanumeric char, and must also be at least six characters long</summary>
-        // // -------------------------------------------------------------------------------------------------
-        // [Fact]
-        // public async void TestRegisterPasswordValidation()
-        // {
-        //     var controller = fixture.accountController;
-        //     string[] roles = new string[] { "Guest" };
+        // -------------------------------------------------------------------------------------------------
+        /// <summary>Test that the register endpoint returns a bad request on weak passwords. The default password validation from Identity requires the password have an uppercase char, a lowercase char, a digit, and a non-alphanumeric char, and must also be at least six characters long</summary>
+        // -------------------------------------------------------------------------------------------------
+        [Theory]
+        [ClassData(typeof(BadPasswordUsers))]
+        public async void TestRegisterPasswordValidation(RegisterInput guestUser, string errorMessage)
+        {
+            // turn the register input into json and set the request headers
+            var content = JsonContent.Create(guestUser);
+            content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
 
-        //     // All these users have bad passwords, but their emails are unique and their roles exist, so the only reason we should get 400 is for their bad passwords
-        //     RegisterInput passwordTooShortUser = new RegisterInput() { FirstName = "Password", LastName = "Validation", Roles = roles, Email = "PassVal1@yahoo.com", Password = "Tes1!" };
+            // get the response
+            HttpResponseMessage response = await fixture.httpClient.PostAsync("/api/account/register", content);
 
-        //     RegisterInput noUpperLetterUser = new RegisterInput() { FirstName = "Password", LastName = "Validation", Roles = roles, Email = "PassVal2@yahoo.com", Password = "test1!" };
+            // assert it is NOT successful
+            Assert.False(response.IsSuccessStatusCode);
 
-        //     RegisterInput noLowerLetterUser = new RegisterInput() { FirstName = "Password", LastName = "Validation", Roles = roles, Email = "PassVal3@yahoo.com", Password = "TEST1!" };
+            // deserialize the stream into what we expect the output to look like
+            CustomBadRequest responseObject = await JsonSerializer.DeserializeAsync<CustomBadRequest>(response.Content.ReadAsStreamAsync().Result);
 
-        //     RegisterInput noNumberUser = new RegisterInput() { FirstName = "Password", LastName = "Validation", Roles = roles, Email = "PassVal4@yahoo.com", Password = "Testt!" };
+            // the errors string needs to be deserialized into an object
+            Errors errors = JsonSerializer.Deserialize<Errors>(responseObject.errors.ToString());
 
-        //     RegisterInput noNonAlphUser = new RegisterInput() { FirstName = "Password", LastName = "Validation", Roles = roles, Email = "PassVal5@yahoo.com", Password = "Test11" };
-
-        //     RegisterInput[] badUsers = new RegisterInput[] {
-        //         passwordTooShortUser,
-        //         noUpperLetterUser,
-        //         noLowerLetterUser,
-        //         noNumberUser,
-        //         noNonAlphUser
-        //     };
-        //     // iterate over the bad inputs and try to register each, assert that each returns a bad request
-        //     foreach (RegisterInput user in badUsers)
-        //     {
-        //         var result = await controller.Register(user);
-        //         // this will assert that the response returned a BadRequestObjectResult, and if it did it will cast our result (which is an IActionResult) to a BadRequestObjectResult
-        //         BadRequestObjectResult badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
-        //     }
-        // }
+            // Assert the expected error message exists on the error object
+            Assert.True(errors.GetType().GetProperty(errorMessage) != null);
+        }
     }
 }

@@ -1,14 +1,14 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
-using Guests.Models;
+using Guests.Entities;
 using Guests.Helpers;
+using Guests.Models;
 using Guests.Models.Customizations;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
-using System.Linq;
-using System;
-using Guests.Entities;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Guests.Controllers
 {
@@ -16,7 +16,6 @@ namespace Guests.Controllers
     [Route("api/[controller]")]
     public class GuestsController : Controller
     {
-
         private readonly AppUserContext Context;
         private UserManager<AppUser> _userManager;
 
@@ -38,6 +37,8 @@ namespace Guests.Controllers
             return Ok(guests);
         }
 
+        // Doesn't really do anything. Just an example of how this could look
+        // Begs the question of whether we will have another role
         [AuthorizeId(Role.Host, Role.Guest)]
         [HttpGet("{id}")]
         public async Task<ActionResult<IEnumerable<AppUser>>> GetGuests(string id)

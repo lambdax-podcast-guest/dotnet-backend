@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using Guests.Helpers;
 using Guests.Models;
-using Guests.Models.Inputs;
 using Guests.Models.Customizations;
+using Guests.Models.Inputs;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Guests.Helpers;
-using System.Linq;
 
 namespace Guests.Controllers
 {

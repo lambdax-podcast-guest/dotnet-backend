@@ -9,8 +9,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Hosting;
 using Guests.Helpers;
 
-
-
 namespace Guests.Models
 {
     public class AppUserContext : IdentityDbContext<AppUser>
@@ -72,7 +70,8 @@ namespace Guests.Models
                 .Ignore(p => p.AccessFailedCount)
                 .Ignore(p => p.TwoFactorEnabled)
                 .Ignore(p => p.LockoutEnd)
-                .Ignore(p => p.LockoutEnabled);
+                .Ignore(p => p.LockoutEnabled)
+                .Ignore(p => p.Roles);
 
             // get topics from DataInitializer and seed to db
             string[] topicList = DataInitializer.Topics;

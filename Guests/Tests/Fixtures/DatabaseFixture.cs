@@ -1,16 +1,14 @@
 using System;
-using Npgsql;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
+using System.Net.Http;
+using System.Text.Json;
+using Guests;
 using Guests.Models;
 using Microsoft.AspNetCore.Hosting;
-using Guests;
 using Microsoft.AspNetCore.TestHost;
-using System.Net.Http;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Npgsql;
 using Xunit;
-using System.Text.Json;
-
-
 
 public class DatabaseFixture : IDisposable
 {
@@ -59,9 +57,6 @@ public class DatabaseFixture : IDisposable
 
         // create the http client
         httpClient = testServer.CreateClient();
-
-        // get the json document for handling json in requests
-        // jsonDocument = new JsonDocument();
     }
 
     public void Dispose()

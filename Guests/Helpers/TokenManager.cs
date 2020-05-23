@@ -1,13 +1,13 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Security.Claims;
 using System.Text;
+using Guests;
 using Guests.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
-using Guests;
 
 namespace Guests.Helpers
 {
@@ -22,14 +22,13 @@ namespace Guests.Helpers
 
             JwtSecurityTokenHandler handler = new JwtSecurityTokenHandler();
 
-            JwtSecurityToken token = new JwtSecurityToken
-            (
+            JwtSecurityToken token = new JwtSecurityToken(
                 issuer: Startup.Configuration["Guests:JwtIssuer"],
                 // access the claims within the claims identity
-                claims: claimsIdentity.Claims,
-                notBefore: DateTime.Now,
-                expires: DateTime.Now.AddDays(1),
-                signingCredentials: new SigningCredentials(new SymmetricSecurityKey(Encoding.ASCII.GetBytes(Startup.Configuration["Guests:JwtKey"])), SecurityAlgorithms.HmacSha256)
+                claims : claimsIdentity.Claims,
+                notBefore : DateTime.Now,
+                expires : DateTime.Now.AddDays(1),
+                signingCredentials : new SigningCredentials(new SymmetricSecurityKey(Encoding.ASCII.GetBytes(Startup.Configuration["Guests:JwtKey"])), SecurityAlgorithms.HmacSha256)
             );
 
             return handler.WriteToken(token);

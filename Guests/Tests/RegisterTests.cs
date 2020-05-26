@@ -23,7 +23,7 @@ namespace Guests.Tests
             // generate an array of roles for our fake user
             string[] roles = new string[] { "Guest" };
 
-            RegisterInput guestUser = new RegisterInput() { FirstName = "Bob", LastName = "Ross", Roles = roles, Email = "BobRoss@yahoo.com", Password = "HappyLittleMistakes1!" };
+            RegisterInput guestUser = fixture.accountHelper.GenerateUniqueRegisterModel(roles);
 
             // turn the register input into json and set the request headers
             var content = JsonHelper.CreatePostContent(guestUser);
@@ -50,7 +50,7 @@ namespace Guests.Tests
         {
             string[] roles = new string[] { "Guest" };
 
-            RegisterInput guestUser = new RegisterInput() { FirstName = "Duplicate", LastName = "User", Roles = roles, Email = "DuplicateUser@yahoo.com", Password = "DupUser1!" };
+            RegisterInput guestUser = fixture.accountHelper.GenerateUniqueRegisterModel(roles);
 
             // turn the register input into json and set the request headers
             var content = JsonHelper.CreatePostContent(guestUser);
@@ -107,7 +107,7 @@ namespace Guests.Tests
             // generate an array of roles for our fake user
             string[] roles = new string[] { "Guest" };
             // register a new user
-            RegisterInput guestUser = new RegisterInput() { FirstName = "Unique", LastName = "User", Roles = roles, Email = "UniqueUser@yahoo.com", Password = "Unique1!" };
+            RegisterInput guestUser = fixture.accountHelper.GenerateUniqueRegisterModel(roles);
 
             // turn the register input into json and set the request headers
             var content = JsonHelper.CreatePostContent(guestUser);

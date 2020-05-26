@@ -7,6 +7,7 @@ namespace Guests.Tests
     /// <summary>
     /// Base class that includes database fixture and xUnit outputter in the constructor
     /// Abstract class meant for inheritance only
+    /// 
     /// All classes that inherit from this class will share the SAME database and server instance
     /// </summary>
     // -------------------------------------------------------------------------------------------------

@@ -21,6 +21,8 @@ namespace Guests.Tests
 
         public TestServer testServer { get; }
 
+        public AccountHelper accountHelper { get; }
+
         // public JsonDocument jsonDocument {get;}
         public DatabaseFixture()
         {
@@ -58,6 +60,9 @@ namespace Guests.Tests
 
             // create the http client
             httpClient = testServer.CreateClient();
+
+            // create an instance of account helper to be passed to the test classes
+            accountHelper = new AccountHelper();
         }
 
         public void Dispose()

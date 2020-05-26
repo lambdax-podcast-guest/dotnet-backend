@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Guests.Models.Inputs;
+
 public class BadPasswordUsers : IEnumerable<object[]>
 {
     // Get Enumerator returns our list of bad password users

@@ -10,11 +10,11 @@ using Xunit.Abstractions;
 namespace GuestTests
 {
     [Collection("DbCollection")]
-    public class AccountTests
+    public class RegisterTests
     {
         DatabaseFixture fixture;
         private readonly ITestOutputHelper outputter;
-        public AccountTests(DatabaseFixture fixture, ITestOutputHelper output)
+        public RegisterTests(DatabaseFixture fixture, ITestOutputHelper output)
         {
             this.fixture = fixture;
             // Use output.WriteLine to print to console
@@ -59,20 +59,26 @@ namespace GuestTests
         {
             string[] roles = new string[] { "Guest" };
 
-            // register the same user as in the last request: it exists in the db, so we should get 400 back
-            RegisterInput guestUser = new RegisterInput() { FirstName = "Bob", LastName = "Ross", Roles = roles, Email = "BobRoss@yahoo.com", Password = "HappyLittleMistakes1!" };
+            RegisterInput guestUser = new RegisterInput() { FirstName = "Duplicate", LastName = "User", Roles = roles, Email = "DuplicateUser@yahoo.com", Password = "DupUser1!" };
 
             // turn the register input into json and set the request headers
             var content = JsonHelper.CreatePostContent(guestUser);
 
             // get the response
-            HttpResponseMessage response = await fixture.httpClient.PostAsync("/api/account/register", content);
+            HttpResponseMessage firstResponse = await fixture.httpClient.PostAsync("/api/account/register", content);
+
+            // the first time we run the request the response should be successful
+            Assert.True(firstResponse.IsSuccessStatusCode);
+
+            // run the same request again, we should get 400 this time
+            HttpResponseMessage secondResponse = await fixture.httpClient.PostAsync("/api/account/register", content);
+
 
             // assert it is NOT successful
-            Assert.False(response.IsSuccessStatusCode);
+            Assert.False(secondResponse.IsSuccessStatusCode);
 
             // deserialize the stream and get the errors using our helper function
-            Errors errors = await JsonHelper.DeserializeResponseAndReturnErrors(response);
+            Errors errors = await JsonHelper.DeserializeResponseAndReturnErrors(secondResponse);
 
             // Assert that the duplicate email error exists on the errors field
             Assert.True(errors.DuplicateEmail != null);

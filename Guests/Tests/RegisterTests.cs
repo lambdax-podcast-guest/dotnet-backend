@@ -7,7 +7,7 @@ using Guests.Models.Inputs;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace GuestTests
+namespace Guests.Tests
 {
     [Collection("DbCollection")]
     public class RegisterTests

@@ -9,20 +9,11 @@ using Xunit.Abstractions;
 
 namespace Guests.Tests
 {
-    [Collection("DbCollection")]
-    public class RegisterTests
+    public class RegisterTests : TestBaseWithFixture
     {
-        DatabaseFixture fixture;
-        private readonly ITestOutputHelper outputter;
-        public RegisterTests(DatabaseFixture fixture, ITestOutputHelper output)
+        public RegisterTests(DatabaseFixture fixture, ITestOutputHelper output) : base(fixture, output)
         {
-            this.fixture = fixture;
-            // Use output.WriteLine to print to console
-            // This ITestOutputHelper class only knows how to use the Visual Studio Output though, so to tell it to use the console here in VSCode, run the test command like this:
-            // dotnet test -l "console;verbosity=detailed"
-            outputter = output;
         }
-
         // -------------------------------------------------------------------------------------------------
         /// <summary>Test that the register endpoint returns a token when the request is successful</summary>
         // -------------------------------------------------------------------------------------------------

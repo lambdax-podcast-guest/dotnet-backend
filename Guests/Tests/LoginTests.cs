@@ -4,6 +4,10 @@ using Xunit.Abstractions;
 using Guests.Models.Inputs;
 using System.Net.Http;
 using System.Text.Json;
+using System.IdentityModel.Tokens.Jwt;
+using Microsoft.IdentityModel.Tokens;
+using System;
+using System.Text;
 
 namespace Guests.Tests
 {
@@ -61,6 +65,38 @@ namespace Guests.Tests
 
             // assert the object we created from the response has a token field and its value is not null
             Assert.True(resultAsObject.token != null);
+        }
+        // -------------------------------------------------------------------------------------------------
+        /// <summary>Test that the login endpoint returns a valid token</summary>
+        // -------------------------------------------------------------------------------------------------
+        [Fact]
+        public async void TestLoginReturnsValidToken()
+        {
+            // register and login a new unique user
+            HttpResponseMessage response = await fixture.accountHelper.RegisterAndLogInNewUser(fixture.httpClient);
+
+            // Get the response as an object so we can get the token from it
+            LoginOutput resultAsObject = await JsonSerializer.DeserializeAsync<LoginOutput>(response.Content.ReadAsStreamAsync().Result);
+
+            var tokenHandler = new JwtSecurityTokenHandler();
+
+            // If the token is not valid there is a number of different exceptions to be thrown
+            // So rather than just let those unhandled exceptions go to the test output, we will actually try and catch them, and provide a custom failure message
+            try
+            {
+                tokenHandler.ValidateToken(resultAsObject.token, new TokenValidationParameters
+                {
+                    ValidIssuer = fixture.Configuration["Guests:JwtIssuer"],
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(fixture.Configuration["Guests:JwtKey"])),
+                    ValidateAudience = false
+                }, out SecurityToken validatedToken);
+            }
+            catch (Exception err)
+            {
+                // xUnit doesn't have an Assert.Fail, their recommended method is to Assert.True(false, message);
+                Assert.True(false, $"{err.GetType().ToString()}: {err.Message.ToString()}");
+            }
+
         }
         // // -------------------------------------------------------------------------------------------------
         // /// <summary>Test that the login endpoint rejects requests that have missing fields</summary>

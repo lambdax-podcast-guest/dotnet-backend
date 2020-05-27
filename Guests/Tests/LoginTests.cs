@@ -3,6 +3,7 @@ using Xunit;
 using Xunit.Abstractions;
 using Guests.Models.Inputs;
 using System.Net.Http;
+using System.Text.Json;
 
 namespace Guests.Tests
 {
@@ -48,14 +49,19 @@ namespace Guests.Tests
             Assert.Equal(HttpStatusCode.BadRequest, loginResponse.StatusCode);
         }
 
-        // // -------------------------------------------------------------------------------------------------
-        // /// <summary>Test the the login endpoing returns a token</summary>
-        // // -------------------------------------------------------------------------------------------------
-        // [Fact]
-        // public async void TestLoginReturnsAToken()
-        // {
+        // -------------------------------------------------------------------------------------------------
+        /// <summary>Test the the login endpoing returns a token</summary>
+        // -------------------------------------------------------------------------------------------------
+        [Fact]
+        public async void TestLoginReturnsAToken()
+        {
+            HttpResponseMessage response = await fixture.accountHelper.RegisterAndLogInNewUser(fixture.httpClient);
 
-        // }
+            LoginOutput resultAsObject = await JsonSerializer.DeserializeAsync<LoginOutput>(response.Content.ReadAsStreamAsync().Result);
+
+            // assert the object we created from the response has a token field and its value is not null
+            Assert.True(resultAsObject.token != null);
+        }
         // // -------------------------------------------------------------------------------------------------
         // /// <summary>Test that the login endpoint rejects requests that have missing fields</summary>
         // // -------------------------------------------------------------------------------------------------

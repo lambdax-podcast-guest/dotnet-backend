@@ -1,6 +1,10 @@
 
 namespace Guests.Tests
 {
+    public class LoginOutput
+    {
+        public string token { get; set; }
+    }
     public class RegisterOutput
     {
         public string id { get; set; }

@@ -20,16 +20,8 @@ namespace Guests.Tests
         [Fact]
         public async void TestRegisterReturnsToken()
         {
-            // generate an array of roles for our fake user
-            string[] roles = new string[] { "Guest" };
-
-            RegisterInput guestUser = fixture.accountHelper.GenerateUniqueRegisterModel(roles);
-
-            // turn the register input into json and set the request headers
-            var content = JsonHelper.CreatePostContent(guestUser);
-
-            // get the response
-            HttpResponseMessage response = await fixture.httpClient.PostAsync("/api/account/register", content);
+            // generate and register a user and get the response
+            HttpResponseMessage response = await fixture.accountHelper.RegisterUniqueRegisterModel(fixture.httpClient);
 
             // assert it is successful
             Assert.True(response.IsSuccessStatusCode);
@@ -48,11 +40,10 @@ namespace Guests.Tests
         [Fact]
         public async void TestRegisterReturnsBadRequestIfEmailExists()
         {
-            string[] roles = new string[] { "Guest" };
 
-            RegisterInput guestUser = fixture.accountHelper.GenerateUniqueRegisterModel(roles);
+            RegisterInput guestUser = fixture.accountHelper.GenerateUniqueRegisterModel();
 
-            // turn the register input into json and set the request headers
+            // turn the register input into json and set the request headers. we won't use the account helper here because we need the content for the second request
             var content = JsonHelper.CreatePostContent(guestUser);
 
             // get the response
@@ -104,10 +95,8 @@ namespace Guests.Tests
         [Fact]
         public async void TestRegisterCreatesUserInDatabase()
         {
-            // generate an array of roles for our fake user
-            string[] roles = new string[] { "Guest" };
             // register a new user
-            RegisterInput guestUser = fixture.accountHelper.GenerateUniqueRegisterModel(roles);
+            RegisterInput guestUser = fixture.accountHelper.GenerateUniqueRegisterModel();
 
             // turn the register input into json and set the request headers
             var content = JsonHelper.CreatePostContent(guestUser);

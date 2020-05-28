@@ -2,6 +2,7 @@ using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Json;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
@@ -27,34 +28,33 @@ namespace Guests.Tests
         [Fact]
         public async void TestLoginRejectsBadPassword()
         {
-            string[] roles = new string[] { "Guest" };
-
             // generate new unique user and register it
-            RegisterInput guestUser = fixture.accountHelper.GenerateUniqueRegisterModel(roles);
+            RegisterInput guestUser = fixture.accountHelper.GenerateUniqueRegisterModel();
 
             // turn the register input into json and set the request headers
-            var content = JsonHelper.CreatePostContent(guestUser);
+            JsonContent content = JsonHelper.CreatePostContent(guestUser);
 
             // get the response
-            HttpResponseMessage response = await fixture.httpClient.PostAsync("/api/account/register", content);
-
-            // assert the response was successful
-            Assert.True(response.IsSuccessStatusCode);
+            HttpResponseMessage registerResponse = await fixture.httpClient.PostAsync("/api/account/register", content);
 
             // now we need a new login model. make one with a bad password
             LoginInput loginInput = new LoginInput() { Email = guestUser.Email, Password = "BadPassword1!" };
 
             // get the login Input as Json Content with headers
-            var loginContent = JsonHelper.CreatePostContent(loginInput);
+            JsonContent loginContent = JsonHelper.CreatePostContent(loginInput);
 
             // get the login response
             HttpResponseMessage loginResponse = await fixture.httpClient.PostAsync("/api/account/login", loginContent);
 
+            // I don't believe we should use an assertion scope here: if the register failed, all the other assertions will also fail, which will just much up the output
+            // assert the response was successful
+            registerResponse.IsSuccessStatusCode.Should().BeTrue("because we registered a unique user: if the register failed then the log in flow is invalid");
+
             // Assert the login response was not successful
-            Assert.False(loginResponse.IsSuccessStatusCode);
+            loginResponse.IsSuccessStatusCode.Should().BeFalse("because we expect the login request to have failed since we provided a bad password");
 
             // Assert we got a bad request from the login response
-            Assert.Equal(HttpStatusCode.BadRequest, loginResponse.StatusCode);
+            loginResponse.StatusCode.Should().Be(HttpStatusCode.BadRequest, "because we expect the request to return 400 bad request since the password is invalid");
         }
 
         // -------------------------------------------------------------------------------------------------
@@ -68,7 +68,7 @@ namespace Guests.Tests
             LoginOutput resultAsObject = await JsonSerializer.DeserializeAsync<LoginOutput>(response.Content.ReadAsStreamAsync().Result);
 
             // assert the object we created from the response has a token field and its value is not null
-            Assert.True(resultAsObject.token != null);
+            resultAsObject.token.Should().NotBeNull("because we expect the response object to contain a token field with a value");
         }
         // -------------------------------------------------------------------------------------------------
         /// <summary>Test that the login endpoint returns a valid token. If the token is invalid an exception will be thrown, causing the test to fail.</summary>
@@ -84,10 +84,8 @@ namespace Guests.Tests
 
             JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
 
-            // If the token is not valid there is a number of different exceptions to be thrown
-            // So rather than just let those unhandled exceptions go to the test output, we will actually try and catch them, and provide a custom failure message
-            // By handling these exceptions this way, developers on this project can clearly see that a test has failed, and that the exception is not coming from somewhere in the codebase
-            try
+            // We want to use FluentAssertions to assert that validating the token does not throw, so we need to wrap it in a delegate
+            Func<SecurityToken> validateToken = () =>
             {
                 tokenHandler.ValidateToken(resultAsObject.token, new TokenValidationParameters
                 {
@@ -95,12 +93,11 @@ namespace Guests.Tests
                         IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(fixture.Configuration["Guests:JwtKey"])),
                         ValidateAudience = false
                 }, out SecurityToken validatedToken);
-            }
-            catch (Exception err)
-            {
-                // xUnit doesn't have an Assert.Fail, their recommended method is to Assert.True(false, message);
-                Assert.True(false, $"{err.GetType().ToString()}: {err.Message.ToString()}");
-            }
+                return validatedToken;
+            };
+
+            // assert that validateToken did not throw, which means our token is valid
+            validateToken.Should().NotThrow("because the token should be valid");
         }
         // -------------------------------------------------------------------------------------------------
         /// <summary>Test that the login endpoint returns a token that contains claims for roles, id and email</summary>
@@ -123,7 +120,7 @@ namespace Guests.Tests
             using(new AssertionScope())
             {
                 // Assert that read token does not throw an exception: if it throws an exception, that means our token was invalid
-                readToken.Should().NotThrow("because the token should be valid");
+                readToken.Should().NotThrow("because the token should be valid in order to check its claims");
 
                 // Get the actual token to check
                 JwtSecurityToken securityToken = readToken();

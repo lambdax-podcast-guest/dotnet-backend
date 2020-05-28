@@ -1,13 +1,15 @@
+using System;
+using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Net;
+using System.Net.Http;
+using System.Security.Claims;
+using System.Text;
+using System.Text.Json;
+using Guests.Models.Inputs;
+using Microsoft.IdentityModel.Tokens;
 using Xunit;
 using Xunit.Abstractions;
-using Guests.Models.Inputs;
-using System.Net.Http;
-using System.Text.Json;
-using System.IdentityModel.Tokens.Jwt;
-using Microsoft.IdentityModel.Tokens;
-using System;
-using System.Text;
 
 namespace Guests.Tests
 {
@@ -15,6 +17,7 @@ namespace Guests.Tests
     {
         public LoginTests(DatabaseFixture fixture, ITestOutputHelper output) : base(fixture, output)
         {
+
         }
 
         // -------------------------------------------------------------------------------------------------
@@ -67,7 +70,7 @@ namespace Guests.Tests
             Assert.True(resultAsObject.token != null);
         }
         // -------------------------------------------------------------------------------------------------
-        /// <summary>Test that the login endpoint returns a valid token</summary>
+        /// <summary>Test that the login endpoint returns a valid token. If the token is invalid an exception will be thrown, causing the test to fail.</summary>
         // -------------------------------------------------------------------------------------------------
         [Fact]
         public async void TestLoginReturnsValidToken()
@@ -78,17 +81,18 @@ namespace Guests.Tests
             // Get the response as an object so we can get the token from it
             LoginOutput resultAsObject = await JsonSerializer.DeserializeAsync<LoginOutput>(response.Content.ReadAsStreamAsync().Result);
 
-            var tokenHandler = new JwtSecurityTokenHandler();
+            JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
 
             // If the token is not valid there is a number of different exceptions to be thrown
             // So rather than just let those unhandled exceptions go to the test output, we will actually try and catch them, and provide a custom failure message
+            // By handling these exceptions this way, developers on this project can clearly see that a test has failed, and that the exception is not coming from somewhere in the codebase
             try
             {
                 tokenHandler.ValidateToken(resultAsObject.token, new TokenValidationParameters
                 {
                     ValidIssuer = fixture.Configuration["Guests:JwtIssuer"],
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(fixture.Configuration["Guests:JwtKey"])),
-                    ValidateAudience = false
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(fixture.Configuration["Guests:JwtKey"])),
+                        ValidateAudience = false
                 }, out SecurityToken validatedToken);
             }
             catch (Exception err)
@@ -96,7 +100,38 @@ namespace Guests.Tests
                 // xUnit doesn't have an Assert.Fail, their recommended method is to Assert.True(false, message);
                 Assert.True(false, $"{err.GetType().ToString()}: {err.Message.ToString()}");
             }
+        }
+        // -------------------------------------------------------------------------------------------------
+        /// <summary>Test that the login endpoint returns a token that contains claims for roles, id and email</summary>
+        // -------------------------------------------------------------------------------------------------
+        [Fact]
+        public async void TestLoginTokenContainsRolesAndUserIdAndEmail()
+        {
+            // register and login a new unique user
+            HttpResponseMessage response = await fixture.accountHelper.RegisterAndLogInNewUser(fixture.httpClient);
 
+            // Get the response as an object so we can get the token from it
+            LoginOutput resultAsObject = await JsonSerializer.DeserializeAsync<LoginOutput>(response.Content.ReadAsStreamAsync().Result);
+
+            JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
+
+            // if the handler can't read the token we will get a system argument exception, again, to control the test output here, we will try catch the exception and provide an error message
+            try
+            {
+                JwtSecurityToken securityToken = tokenHandler.ReadToken(resultAsObject.token) as JwtSecurityToken;
+
+                // see if any of the claims on the list are either role, email or nameidentifier
+                bool containsExpectedClaims = securityToken.Claims.Any(claim => claim.Type == ClaimTypes.Email || claim.Type == ClaimTypes.NameIdentifier || claim.Type == ClaimTypes.Role || claim.Type == ClaimTypes.DateOfBirth);
+
+                // TODO: None of this works!
+                Assert.True(containsExpectedClaims);
+
+            }
+            catch (ArgumentException argErr)
+            {
+                // xUnit doesn't have an Assert.Fail, their recommended method is to Assert.True(false, message);
+                Assert.True(false, $"{argErr.GetType().ToString()}: {argErr.Message.ToString()}");
+            }
         }
         // // -------------------------------------------------------------------------------------------------
         // /// <summary>Test that the login endpoint rejects requests that have missing fields</summary>

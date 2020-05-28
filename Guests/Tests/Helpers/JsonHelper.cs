@@ -1,9 +1,9 @@
+using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
 using System.Threading.Tasks;
-
 
 namespace Guests.Tests
 {
@@ -25,6 +25,13 @@ namespace Guests.Tests
 
             // the errors string needs to be deserialized into an object
             return JsonSerializer.Deserialize<Errors>(responseObject.errors.ToString());
+        }
+
+        // /// <summary>Deserialize bad request object, then deserialize it's errors object, and return the errors</summary>
+        public async static Task<T> TryDeserializeJson<T>(HttpResponseMessage response)
+        {
+            // deserialize the stream into what we expect the output to look like
+            return await JsonSerializer.DeserializeAsync<T>(response.Content.ReadAsStreamAsync().Result);
         }
     }
 }

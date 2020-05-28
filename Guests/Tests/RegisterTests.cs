@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Net.Http;
 using System.Text.Json;
+using FluentAssertions;
 using Guests.Models;
 using Guests.Models.Inputs;
 using Xunit;
@@ -11,9 +12,7 @@ namespace Guests.Tests
 {
     public class RegisterTests : TestBaseWithFixture
     {
-        public RegisterTests(DatabaseFixture fixture, ITestOutputHelper output) : base(fixture, output)
-        {
-        }
+        public RegisterTests(DatabaseFixture fixture, ITestOutputHelper output) : base(fixture, output) { }
         // -------------------------------------------------------------------------------------------------
         /// <summary>Test that the register endpoint returns a token when the request is successful</summary>
         // -------------------------------------------------------------------------------------------------
@@ -21,16 +20,16 @@ namespace Guests.Tests
         public async void TestRegisterReturnsToken()
         {
             // generate and register a user and get the response
-            HttpResponseMessage response = await fixture.accountHelper.RegisterUniqueRegisterModel(fixture.httpClient);
-
-            // assert it is successful
-            Assert.True(response.IsSuccessStatusCode);
+            HttpResponseMessage registerResponse = await AccountHelper.RegisterUniqueRegisterModel(fixture.httpClient);
 
             // deserialize the string into what we expect the output to look like
-            RegisterOutput resultAsObject = await JsonSerializer.DeserializeAsync<RegisterOutput>(response.Content.ReadAsStreamAsync().Result);
+            var resultAsObject = await JsonSerializer.DeserializeAsync<RegisterOutput>(registerResponse.Content.ReadAsStreamAsync().Result);
+
+            // assert it is successful
+            registerResponse.IsSuccessStatusCode.Should().BeTrue("because we registered a unique user and expect registration to succeed");
 
             // assert the object we created from the response has a token field and its value is not null
-            Assert.True(resultAsObject.token != null);
+            resultAsObject.token.Should().NotBeNull("because we expect the response object to contain a token field with a value");
 
         }
 
@@ -41,7 +40,7 @@ namespace Guests.Tests
         public async void TestRegisterReturnsBadRequestIfEmailExists()
         {
 
-            RegisterInput guestUser = fixture.accountHelper.GenerateUniqueRegisterModel();
+            RegisterInput guestUser = AccountHelper.GenerateUniqueRegisterModel();
 
             // turn the register input into json and set the request headers. we won't use the account helper here because we need the content for the second request
             var content = JsonHelper.CreatePostContent(guestUser);
@@ -54,7 +53,6 @@ namespace Guests.Tests
 
             // run the same request again, we should get 400 this time
             HttpResponseMessage secondResponse = await fixture.httpClient.PostAsync("/api/account/register", content);
-
 
             // assert it is NOT successful
             Assert.False(secondResponse.IsSuccessStatusCode);
@@ -96,7 +94,7 @@ namespace Guests.Tests
         public async void TestRegisterCreatesUserInDatabase()
         {
             // register a new user
-            RegisterInput guestUser = fixture.accountHelper.GenerateUniqueRegisterModel();
+            RegisterInput guestUser = AccountHelper.GenerateUniqueRegisterModel();
 
             // turn the register input into json and set the request headers
             var content = JsonHelper.CreatePostContent(guestUser);

@@ -29,7 +29,7 @@ namespace Guests.Tests
         public async void TestLoginRejectsBadPassword()
         {
             // generate new unique user and register it
-            RegisterInput guestUser = fixture.accountHelper.GenerateUniqueRegisterModel();
+            RegisterInput guestUser = AccountHelper.GenerateUniqueRegisterModel();
 
             // turn the register input into json and set the request headers
             JsonContent content = JsonHelper.CreatePostContent(guestUser);
@@ -63,7 +63,7 @@ namespace Guests.Tests
         [Fact]
         public async void TestLoginReturnsAToken()
         {
-            HttpResponseMessage response = await fixture.accountHelper.RegisterAndLogInNewUser(fixture.httpClient);
+            HttpResponseMessage response = await AccountHelper.RegisterAndLogInNewUser(fixture.httpClient);
 
             LoginOutput resultAsObject = await JsonSerializer.DeserializeAsync<LoginOutput>(response.Content.ReadAsStreamAsync().Result);
 
@@ -77,7 +77,7 @@ namespace Guests.Tests
         public async void TestLoginReturnsValidToken()
         {
             // register and login a new unique user
-            HttpResponseMessage response = await fixture.accountHelper.RegisterAndLogInNewUser(fixture.httpClient);
+            HttpResponseMessage response = await AccountHelper.RegisterAndLogInNewUser(fixture.httpClient);
 
             // Get the response as an object so we can get the token from it
             LoginOutput resultAsObject = await JsonSerializer.DeserializeAsync<LoginOutput>(response.Content.ReadAsStreamAsync().Result);
@@ -106,7 +106,7 @@ namespace Guests.Tests
         public async void TestLoginTokenContainsRolesAndUserIdAndEmail()
         {
             // register and login a new unique user
-            HttpResponseMessage response = await fixture.accountHelper.RegisterAndLogInNewUser(fixture.httpClient);
+            HttpResponseMessage response = await AccountHelper.RegisterAndLogInNewUser(fixture.httpClient);
 
             // Get the response as an object so we can get the token from it
             LoginOutput resultAsObject = await JsonSerializer.DeserializeAsync<LoginOutput>(response.Content.ReadAsStreamAsync().Result);

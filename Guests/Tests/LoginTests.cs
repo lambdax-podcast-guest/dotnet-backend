@@ -1,11 +1,12 @@
 using System;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
+using FluentAssertions;
+using FluentAssertions.Execution;
 using Guests.Models.Inputs;
 using Microsoft.IdentityModel.Tokens;
 using Xunit;
@@ -115,22 +116,22 @@ namespace Guests.Tests
 
             JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
 
-            // if the handler can't read the token we will get a system argument exception, again, to control the test output here, we will try catch the exception and provide an error message
-            try
+            // JwtSecurityTokenHandler.ReadToken will throw an exception if the token is invalid
+            // use built in delegate Func to Assert that reading the token does not throw 
+            Func<JwtSecurityToken> readToken = () => tokenHandler.ReadToken(resultAsObject.token) as JwtSecurityToken;
+
+            using(new AssertionScope())
             {
-                JwtSecurityToken securityToken = tokenHandler.ReadToken(resultAsObject.token) as JwtSecurityToken;
+                // Assert that read token does not throw an exception: if it throws an exception, that means our token was invalid
+                readToken.Should().NotThrow("because the token should be valid");
 
-                // see if any of the claims on the list are either role, email or nameidentifier
-                bool containsExpectedClaims = securityToken.Claims.Any(claim => claim.Type == ClaimTypes.Email || claim.Type == ClaimTypes.NameIdentifier || claim.Type == ClaimTypes.Role || claim.Type == ClaimTypes.DateOfBirth);
+                // Get the actual token to check
+                JwtSecurityToken securityToken = readToken();
 
-                // TODO: None of this works!
-                Assert.True(containsExpectedClaims);
-
-            }
-            catch (ArgumentException argErr)
-            {
-                // xUnit doesn't have an Assert.Fail, their recommended method is to Assert.True(false, message);
-                Assert.True(false, $"{argErr.GetType().ToString()}: {argErr.Message.ToString()}");
+                // user only has one id and email but can have many roles
+                securityToken.Claims.Should().ContainSingle(claim => claim.Type == ClaimTypes.Email, "because we expect the token to have a name identifier claim");
+                securityToken.Claims.Should().ContainSingle(claim => claim.Type == ClaimTypes.NameIdentifier, "because we expect the token to have an email claim");
+                securityToken.Claims.Should().Contain(claim => claim.Type == ClaimTypes.Role, "because we expect the token to have at least one role claim");
             }
         }
         // // -------------------------------------------------------------------------------------------------

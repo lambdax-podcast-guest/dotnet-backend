@@ -1,6 +1,6 @@
-using Guests.Models.Inputs;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Guests.Models.Inputs;
 
 namespace Guests.Tests
 {

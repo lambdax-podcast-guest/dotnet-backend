@@ -1,9 +1,6 @@
 using System;
 using System.Linq;
 using System.Net.Http;
-using System.Net.Http.Json;
-using System.Text.Json;
-using System.Threading.Tasks;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Guests.Models;
@@ -29,11 +26,15 @@ namespace Guests.Tests
             // deserialize the response content
             RegisterOutput resultAsObject = await JsonHelper.TryDeserializeJson<RegisterOutput>(registerResponse);
 
-            // assert it is successful
-            registerResponse.IsSuccessStatusCode.Should().BeTrue("because we registered a unique user and expect registration to succeed");
+            using(new AssertionScope())
+            {
+                // assert it is successful
+                registerResponse.IsSuccessStatusCode.Should().BeTrue("because we registered a unique user and expect registration to succeed");
 
-            // assert the object we created from the response has a token field and its value is not null
-            resultAsObject.token.Should().NotBeNull("because we expect the response object to contain a token field with a value");
+                // assert the object we created from the response has a token field and its value is not null
+                resultAsObject.token.Should().NotBeNull("because we expect the response object to contain a token field with a value");
+
+            }
         }
 
         /// <summary>
@@ -59,7 +60,7 @@ namespace Guests.Tests
                 firstResponse.IsSuccessStatusCode.Should().BeTrue("because the first time we run the register request it should be successful since this user was unique.");
 
                 // assert it is NOT successful
-                secondResponse.IsSuccessStatusCode.Should().BeFalse("because ");
+                secondResponse.IsSuccessStatusCode.Should().BeFalse("because the second time we run the register request it should *NOT* be successful since the user is not unique.");
 
                 // deserialize the response and get the errors using our helper function
                 Errors errors = await JsonHelper.DeserializeResponseAndReturnErrors(secondResponse);
@@ -76,23 +77,22 @@ namespace Guests.Tests
         /// </summary>
         [Theory]
         [ClassData(typeof(BadPasswordUsers))]
-        public async void TestRegisterPasswordValidation(RegisterInput guestUser, string errorMessage)
+        public async void TestRegisterPasswordValidation(RegisterInput user, string errorMessage)
         {
-            // turn the register input into json and set the request headers
-            var content = JsonHelper.CreatePostContent(guestUser);
-
             // get the response
-            HttpResponseMessage response = await fixture.httpClient.PostAsync("/api/account/register", content);
+            HttpResponseMessage registerResponse = await AccountHelper.RegisterUser(fixture.httpClient, user);
 
-            // assert it is NOT successful
-            Assert.False(response.IsSuccessStatusCode);
+            using(new AssertionScope())
+            {
+                // assert it is NOT successful
+                registerResponse.IsSuccessStatusCode.Should().BeFalse("because we expect identity to reject bad passwords");
 
-            // deserialize the stream and get the errors using our helper function
-            Errors errors = await JsonHelper.DeserializeResponseAndReturnErrors(response);
+                // deserialize the stream and get the errors using our helper function
+                Errors errors = await JsonHelper.DeserializeResponseAndReturnErrors(registerResponse);
 
-            // Assert the expected error message exists on the error object
-            Assert.True(errors.GetType().GetProperty(errorMessage) != null);
-
+                // Assert the expected error message exists on the error object
+                errors.GetType().GetProperty(errorMessage).Should().NotBeNull($"because we expect a user with each type of bad password to return a different error message, this password: {user.Password} should return this message: {errorMessage}");
+            }
         }
 
         /// <summary>
@@ -102,27 +102,26 @@ namespace Guests.Tests
         public async void TestRegisterCreatesUserInDatabase()
         {
             // register a new user
-            RegisterInput guestUser = AccountHelper.GenerateUniqueRegisterModel();
-
-            // turn the register input into json and set the request headers
-            var content = JsonHelper.CreatePostContent(guestUser);
+            RegisterInput registerUser = AccountHelper.GenerateUniqueRegisterModel();
 
             // get the response
-            HttpResponseMessage response = await fixture.httpClient.PostAsync("/api/account/register", content);
-
-            // assert it is successful
-            Assert.True(response.IsSuccessStatusCode);
+            HttpResponseMessage registerResponse = await AccountHelper.RegisterUser(fixture.httpClient, registerUser);
 
             // query the database directly for the user we just made
-            AppUser[] user = fixture.DbContext.Users.Where(u => u.Email == guestUser.Email).ToArray();
+            AppUser[] user = fixture.DbContext.Users.Where(u => u.Email == registerUser.Email).ToArray();
 
-            // assert the query found something and only found one thing
-            Assert.NotEmpty(user);
-            Assert.True(user.Length == 1);
+            using(new AssertionScope())
+            {
+                // assert the response was successful
+                registerResponse.IsSuccessStatusCode.Should().BeTrue("because we registered a unique user, and if the response was not successful the entity should not be in the database");
 
-            // assert the returned object is the right type and contains the expected data
-            Assert.IsType(Type.GetType(typeof(AppUser).AssemblyQualifiedName), user[0]);
-            Assert.True(user[0].GetType().GetProperty("Email").GetValue(user[0]).ToString() == guestUser.Email);
+                // assert the query found something and only found one thing
+                user.Should().ContainSingle("because all of our users emails are unique, so we should only find one entry per email");
+
+                // assert the returned object is the right type and contains the expected data
+                user[0].Should().BeOfType<AppUser>("because we expect to get the app user type from the user table");
+                (user[0].GetType().GetProperty("Email").GetValue(user[0]).ToString() == registerUser.Email).Should().BeTrue("because we expect our query to return the entry we registered");
+            }
         }
     }
 }

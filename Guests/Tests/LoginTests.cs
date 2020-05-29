@@ -17,14 +17,11 @@ namespace Guests.Tests
 {
     public class LoginTests : TestBaseWithFixture
     {
-        public LoginTests(DatabaseFixture fixture, ITestOutputHelper output) : base(fixture, output)
-        {
+        public LoginTests(DatabaseFixture fixture, ITestOutputHelper output) : base(fixture, output) { }
 
-        }
-
-        // -------------------------------------------------------------------------------------------------
-        /// <summary>Test that the login endpoint returns bad request when the user logs in with an incorrect password</summary>
-        // -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Test that the login endpoint returns bad request when the user logs in with an incorrect password
+        /// </summary>
         [Fact]
         public async void TestLoginRejectsBadPassword()
         {
@@ -57,9 +54,9 @@ namespace Guests.Tests
             loginResponse.StatusCode.Should().Be(HttpStatusCode.BadRequest, "because we expect the request to return 400 bad request since the password is invalid");
         }
 
-        // -------------------------------------------------------------------------------------------------
-        /// <summary>Test the the login endpoing returns a token</summary>
-        // -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Test the the login endpoing returns a token
+        /// </summary>
         [Fact]
         public async void TestLoginReturnsAToken()
         {
@@ -70,9 +67,10 @@ namespace Guests.Tests
             // assert the object we created from the response has a token field and its value is not null
             resultAsObject.token.Should().NotBeNull("because we expect the response object to contain a token field with a value");
         }
-        // -------------------------------------------------------------------------------------------------
-        /// <summary>Test that the login endpoint returns a valid token. If the token is invalid an exception will be thrown, causing the test to fail.</summary>
-        // -------------------------------------------------------------------------------------------------
+
+        /// <summary>
+        /// Test that the login endpoint returns a valid token. If the token is invalid an exception will be thrown, causing the test to fail.
+        /// </summary>
         [Fact]
         public async void TestLoginReturnsValidToken()
         {
@@ -99,9 +97,10 @@ namespace Guests.Tests
             // assert that validateToken did not throw, which means our token is valid
             validateToken.Should().NotThrow("because the token should be valid");
         }
-        // -------------------------------------------------------------------------------------------------
-        /// <summary>Test that the login endpoint returns a token that contains claims for roles, id and email</summary>
-        // -------------------------------------------------------------------------------------------------
+
+        /// <summary>
+        /// Test that the login endpoint returns a token that contains claims for roles, id and email
+        /// </summary>
         [Fact]
         public async void TestLoginTokenContainsRolesAndUserIdAndEmail()
         {
@@ -131,9 +130,9 @@ namespace Guests.Tests
                 securityToken.Claims.Should().Contain(claim => claim.Type == ClaimTypes.Role, "because we expect the token to have at least one role claim");
             }
         }
-        // // -------------------------------------------------------------------------------------------------
+
         // /// <summary>Test that the login endpoint rejects requests that have missing fields</summary>
-        // // -------------------------------------------------------------------------------------------------
+
         // [Fact]
         // public async void TestLoginReturnsBadRequesOnInvalidModel()
         // {

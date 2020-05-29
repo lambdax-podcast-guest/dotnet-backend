@@ -5,6 +5,7 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using System.Threading.Tasks;
 using FluentAssertions;
+using FluentAssertions.Execution;
 using Guests.Models;
 using Guests.Models.Inputs;
 using Xunit;
@@ -15,9 +16,10 @@ namespace Guests.Tests
     public class RegisterTests : TestBaseWithFixture
     {
         public RegisterTests(DatabaseFixture fixture, ITestOutputHelper output) : base(fixture, output) { }
-        // -------------------------------------------------------------------------------------------------
-        /// <summary>Test that the register endpoint returns a token when the request is successful</summary>
-        // -------------------------------------------------------------------------------------------------
+
+        /// <summary>
+        /// Test that the register endpoint returns a token when the request is successful
+        /// </summary>
         [Fact]
         public async void TestRegisterReturnsToken()
         {
@@ -34,13 +36,13 @@ namespace Guests.Tests
             resultAsObject.token.Should().NotBeNull("because we expect the response object to contain a token field with a value");
         }
 
-        // -------------------------------------------------------------------------------------------------
-        /// <summary>Test that the register endpoint returns a bad request if someone tries to register with the same email twice</summary>
-        // -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Test that the register endpoint returns a bad request if someone tries to register with the same email twice
+        /// </summary>
         [Fact]
         public async void TestRegisterReturnsBadRequestIfEmailExists()
         {
-
+            // generate a new unique user
             RegisterInput guestUser = AccountHelper.GenerateUniqueRegisterModel();
 
             // turn the register input into json and set the request headers. we won't use the account helper here because we need the content for the second request
@@ -49,25 +51,32 @@ namespace Guests.Tests
             // get the response
             HttpResponseMessage firstResponse = await fixture.httpClient.PostAsync("/api/account/register", content);
 
-            // the first time we run the request the response should be successful
-            Assert.True(firstResponse.IsSuccessStatusCode);
-
             // run the same request again, we should get 400 this time
             HttpResponseMessage secondResponse = await fixture.httpClient.PostAsync("/api/account/register", content);
 
-            // assert it is NOT successful
-            Assert.False(secondResponse.IsSuccessStatusCode);
+            // use an assertion scope so we get output for every failed assertion
+            using(new AssertionScope())
+            {
 
-            // deserialize the stream and get the errors using our helper function
-            Errors errors = await JsonHelper.DeserializeResponseAndReturnErrors(secondResponse);
+                // the first time we run the request the response should be successful
+                firstResponse.IsSuccessStatusCode.Should().BeTrue("because the first time we run the register request it should be successful since this user was unique.");
 
-            // Assert that the duplicate email error exists on the errors field
-            Assert.True(errors.DuplicateEmail != null);
+                // assert it is NOT successful
+                secondResponse.IsSuccessStatusCode.Should().BeFalse("because ");
+
+                // deserialize the response and get the errors using our helper function
+                Errors errors = await JsonHelper.DeserializeResponseAndReturnErrors(secondResponse);
+
+                // Assert that the duplicate email error exists on the errors field
+                errors.DuplicateEmail.Should().NotBeNull("because we expect the errors field to contain an entry with a value for the duplicate email error, since we tried to register the exact same user twice.");
+
+            }
         }
 
-        // -------------------------------------------------------------------------------------------------
-        /// <summary>Test that the register endpoint returns a bad request on weak passwords. The default password validation from Identity requires the password have an uppercase char, a lowercase char, a digit, and a non-alphanumeric char, and must also be at least six characters long</summary>
-        // -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Test that the register endpoint returns a bad request on weak passwords. 
+        /// The default password validation from Identity requires the password have an uppercase char, a lowercase char, a digit, and a non-alphanumeric char, and must also be at least six characters long
+        /// </summary>
         [Theory]
         [ClassData(typeof(BadPasswordUsers))]
         public async void TestRegisterPasswordValidation(RegisterInput guestUser, string errorMessage)
@@ -86,11 +95,12 @@ namespace Guests.Tests
 
             // Assert the expected error message exists on the error object
             Assert.True(errors.GetType().GetProperty(errorMessage) != null);
+
         }
 
-        // -------------------------------------------------------------------------------------------------
-        /// <summary>Test that the user can be found in the database once they are registered</summary>
-        // -------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Test that the user can be found in the database once they are registered
+        /// </summary>
         [Fact]
         public async void TestRegisterCreatesUserInDatabase()
         {

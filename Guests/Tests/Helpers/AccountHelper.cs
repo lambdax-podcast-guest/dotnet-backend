@@ -18,9 +18,13 @@ namespace Guests.Tests
 
         public AccountHelper() { }
 
+        /// <summary>
+        /// Registers a given user with the given client. 
+        /// </summary>
+        /// <param name="client">HttpClient used to make the request</param>
+        /// <param name="user">The User you would like to register</param>
         public static async Task<HttpResponseMessage> RegisterUser(HttpClient client, RegisterInput user)
         {
-
             var content = JsonHelper.CreatePostContent(user);
 
             HttpResponseMessage response = await client.PostAsync(RegisterUri, content);
@@ -28,7 +32,10 @@ namespace Guests.Tests
             return response;
         }
 
-        /// <summary>Generates a new valid register model, with incrementing index property to make sure our unique properties are unique. string[] roles is optional, if you don't include it your user will be registered as both a guest and a host</summary>
+        /// <summary>
+        /// Generates a new valid register model, with incrementing index property to make sure our unique properties are unique.
+        /// </summary>
+        /// <param name="roles">The roles for the user you are generating in a string array. If you don't include it your user will be generated as both a guest and a host</param>
         public static RegisterInput GenerateUniqueRegisterModel(string[] roles = null)
         {
             if (roles == null)
@@ -40,7 +47,11 @@ namespace Guests.Tests
             return user;
         }
 
-        /// <summary>Generates a new valid register model, converts it to json content with headers, and registers it to the database. string[] roles is optional, if you don't include it your user will be registered as both a guest and a host</summary>
+        /// <summary>
+        /// Generates a new valid register model, converts it to json content with headers, and registers it to the database. 
+        /// </summary>
+        /// <param name="client">HttpClient used to make the request</param>
+        /// <param name="roles">The roles for the user you are registering in a string array. If you don't include it your user will be registered as both a guest and a host</param>
         public static async Task<HttpResponseMessage> RegisterUniqueRegisterModel(HttpClient client, string[] roles = null)
         {
             if (roles == null)
@@ -55,7 +66,11 @@ namespace Guests.Tests
             return response;
         }
 
-        /// <summary>Generates a new valid register model, converts it to json content with headers, and registers it to the database. string[] roles is optional, if you don't include it your user will be registered as both a guest and a host. Logs in the user and returns the response. We will need to register and log in many users to test the authenticated endpoints, this function will keep our code dry. </summary>
+        /// <summary>
+        /// Generates a new valid register model, converts it to json content with headers, and registers it to the database. string[] roles is optional, if you don't include it your user will be registered as both a guest and a host. Logs in the user and returns the response. We will need to register and log in many users to test the authenticated endpoints, this function will keep our code dry. 
+        /// </summary>
+        /// <param name="client">HttpClient used to make the request</param>
+        /// <param name="roles">The roles for the user you are registering in a string array. If you don't include it your user will be registered as both a guest and a host</param>
         public static async Task<HttpResponseMessage> RegisterAndLogInNewUser(HttpClient client, string[] roles = null)
         {
             if (roles == null)

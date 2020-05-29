@@ -1,16 +1,25 @@
-
 namespace Guests.Tests
 {
+    /// <summary>
+    /// The expected shape of the response from the Login Request
+    /// </summary>
     public class LoginOutput
     {
         public string token { get; set; }
     }
+
+    /// <summary>
+    /// The expected shape of the response from the Register Request
+    /// </summary>
     public class RegisterOutput
     {
         public string id { get; set; }
         public string token { get; set; }
     }
 
+    /// <summary>
+    /// Expected shape of a bad request object (400)
+    /// </summary>
     public class CustomBadRequest
     {
         public string type { get; set; }
@@ -20,6 +29,9 @@ namespace Guests.Tests
         public object errors { get; set; }
     }
 
+    /// <summary>
+    /// General Error shape
+    /// </summary>
     public class Errors
     {
         public string[] DuplicateEmail { get; set; }

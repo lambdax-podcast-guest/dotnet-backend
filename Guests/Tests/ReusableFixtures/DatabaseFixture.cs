@@ -11,6 +11,10 @@ using Xunit;
 namespace Guests.Tests
 {
 
+    /// <summary>
+    /// Database fixture to be used in the Database Collection decorator to be shared among all the test classes
+    /// Contains instance of AppUserContext DbContext, IConfiguration Configuration, HttpClient httpClient and TestServer testServer
+    /// </summary>
     public class DatabaseFixture : IDisposable
     {
         public AppUserContext DbContext { get; }
@@ -21,7 +25,6 @@ namespace Guests.Tests
 
         public TestServer testServer { get; }
 
-        // public JsonDocument jsonDocument {get;}
         public DatabaseFixture()
         {
             // get configuration in order to create our connection string

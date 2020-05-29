@@ -11,7 +11,7 @@ namespace Guests.Tests
     public class JsonHelper
     {
         /// <summary>Turn any input class into json content for post</summary>
-        /// <typeparam name="T"> The type of the object to be created into JsonContent</typeparam>
+        /// <typeparam name="T">The type of the object to be created into JsonContent</typeparam>
         /// <param name="genericObject">The object instance to be created into JsonContent</param>
         public static JsonContent CreatePostContent<T>(T genericObject)
         {
@@ -21,7 +21,7 @@ namespace Guests.Tests
             return content;
         }
 
-        /// <summary>Deserialize bad request object, then deserialize it's errors object, and return the errors</summary>
+        /// <summary>Deserialize bad request object, then deserialize it's errors object, and return the errors as an Errors object</summary>
         /// <param name="response">HttpResponseMessage that can be deserialized into a CustomBadRequest object</param>
         public async static Task<Errors> DeserializeResponseAndReturnErrors(HttpResponseMessage response)
         {

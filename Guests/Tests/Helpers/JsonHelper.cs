@@ -15,7 +15,7 @@ namespace Guests.Tests
         /// <param name="genericObject">The object instance to be created into JsonContent</param>
         public static JsonContent CreatePostContent<T>(T genericObject)
         {
-            // turn the register input into json and set the request headers
+            // turn the input into json and set the request headers
             JsonContent content = JsonContent.Create(genericObject);
             content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
             return content;

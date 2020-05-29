@@ -42,17 +42,14 @@ namespace Guests.Tests
         [Fact]
         public async void TestRegisterReturnsBadRequestIfEmailExists()
         {
-            // generate a new unique user
-            RegisterInput guestUser = AccountHelper.GenerateUniqueRegisterModel();
-
-            // turn the register input into json and set the request headers. we won't use the account helper here because we need the content for the second request
-            var content = JsonHelper.CreatePostContent(guestUser);
+            // generate a new unique user to 
+            RegisterInput user = AccountHelper.GenerateUniqueRegisterModel();
 
             // get the response
-            HttpResponseMessage firstResponse = await fixture.httpClient.PostAsync("/api/account/register", content);
+            HttpResponseMessage firstResponse = await AccountHelper.RegisterUser(fixture.httpClient, user);
 
             // run the same request again, we should get 400 this time
-            HttpResponseMessage secondResponse = await fixture.httpClient.PostAsync("/api/account/register", content);
+            HttpResponseMessage secondResponse = await AccountHelper.RegisterUser(fixture.httpClient, user);
 
             // use an assertion scope so we get output for every failed assertion
             using(new AssertionScope())

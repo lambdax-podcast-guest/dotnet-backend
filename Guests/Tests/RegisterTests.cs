@@ -1,7 +1,9 @@
 using System;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Json;
 using System.Text.Json;
+using System.Threading.Tasks;
 using FluentAssertions;
 using Guests.Models;
 using Guests.Models.Inputs;
@@ -22,15 +24,14 @@ namespace Guests.Tests
             // generate and register a user and get the response
             HttpResponseMessage registerResponse = await AccountHelper.RegisterUniqueRegisterModel(fixture.httpClient);
 
-            // deserialize the string into what we expect the output to look like
-            var resultAsObject = await JsonSerializer.DeserializeAsync<RegisterOutput>(registerResponse.Content.ReadAsStreamAsync().Result);
+            // deserialize the response content
+            RegisterOutput resultAsObject = await JsonHelper.TryDeserializeJson<RegisterOutput>(registerResponse);
 
             // assert it is successful
             registerResponse.IsSuccessStatusCode.Should().BeTrue("because we registered a unique user and expect registration to succeed");
 
             // assert the object we created from the response has a token field and its value is not null
             resultAsObject.token.Should().NotBeNull("because we expect the response object to contain a token field with a value");
-
         }
 
         // -------------------------------------------------------------------------------------------------

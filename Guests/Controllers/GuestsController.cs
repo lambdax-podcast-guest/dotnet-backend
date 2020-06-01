@@ -2,97 +2,58 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Guests.Entities;
+using Guests.Helpers;
 using Guests.Models;
+using Guests.Models.Customizations;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
-namespace Guests.Controllers{
+namespace Guests.Controllers
+{
+    [Authorize]
     [Route("api/[controller]")]
     public class GuestsController : Controller
     {
+        private readonly AppUserContext Context;
+        private UserManager<AppUser> _userManager;
 
-        private readonly GuestsContext Context;
-
-        public GuestsController(GuestsContext context)
-            => Context = context;
-
-        // GET: api/guests
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Guest>>> GetGuests()
+        public GuestsController(AppUserContext context, UserManager<AppUser> userManager)
         {
+            Context = context;
+            _userManager = userManager;
+        }
 
-            var guests = await Context.Guests.ToListAsync();
-
-            if(guests.Count == 0){
-                return NotFound("Sorry to say but you have no guests...");
-            }
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<AppUser>>> GetGuests()
+        {
+            var guests = await _userManager.GetUsersInRoleAsync(Role.Guest);
+            // If there are no guests don't bother normalizing the output
+            if (guests.Count == 0) return Ok("Sorry, there are no guests...");
+            // Populate roles for all users
+            await Task.WhenAll(guests.Select(guest => _userManager.PopulateRolesAsync(guest)));
+            // Return the matching guest
             return Ok(guests);
         }
 
-        // GET: api/guests/1
+        // Doesn't really do anything. Just an example of how this could look
+        // Begs the question of whether we will have another role
+        [AuthorizeId(Role.Host, Role.Guest)]
         [HttpGet("{id}")]
-        public async Task<ActionResult<IEnumerable<Guest>>> GetGuests(int id)
+        public async Task<ActionResult<IEnumerable<AppUser>>> GetGuests(string id)
         {
-
-            var guest = await Context.Guests.FindAsync(id);
-
-            if(guest == null){
-                return NotFound("No such guest found, please check again...");
-            }
+            // Find user matching id
+            AppUser guest = await _userManager.FindByIdAsync(id);
+            // Get roles for user
+            await _userManager.PopulateRolesAsync(guest);
+            // Boolean indicating whether this user has a guest role
+            bool isGuest = Array.Exists(guest.Roles, role => role == Role.Guest);
+            // If user does not exist or does not have a guest role, return 400
+            if (guest == null || !isGuest) return NotFound("No such guest found, please check again...");
+            // Return the user
             return Ok(guest);
         }
 
-        // Put: api/guests/2
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutGuest(int id, [FromBody] Guest input){
-
-            var guest = await Context.Guests.FindAsync(id);
-
-            if(guest == null){
-                return NotFound("The guest you are looking for does not appear to be...");
-            }
-
-            guest.Name = input.Name;
-            guest.Email = input.Email;
-
-            await Context.SaveChangesAsync();
-
-            return Ok(guest);
-        }
-
-        // Post: api/guests
-        [HttpPost]
-        public async Task<IActionResult> CreateGuest([FromBody] Guest input){
-
-            var guest = new Guest(){
-                Name = input.Name,
-                Email = input.Email
-            };
-
-            Context.Guests.Add(guest);
-            await Context.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(GetGuests), new { id = guest.Id }, guest);
-        }
-
-        // Delete: api/guests/2
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteGuest(int id){
-
-            var guest = await Context.Guests.FindAsync(id);
-
-            if(guest == null){
-                return NotFound();
-            }
-
-            Context.Remove(guest);
-
-            await Context.SaveChangesAsync();
-
-            if(Context.Guests == null){
-                return NotFound("No guests found");
-            }
-            return Ok(Context.Guests);
-        }
     }
 }

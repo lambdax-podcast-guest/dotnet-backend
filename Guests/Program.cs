@@ -1,11 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 
 namespace Guests
 {
@@ -20,8 +14,6 @@ namespace Guests
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
-                    // for a custom port
-                    webBuilder.UseUrls("https://localhost:3000");
                     webBuilder.UseStartup<Startup>();
                 });
 

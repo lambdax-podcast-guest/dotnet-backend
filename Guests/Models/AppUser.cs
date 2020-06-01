@@ -50,6 +50,9 @@ namespace Guests.Models
         /// <summary>A list of invitations to a particular podcast</summary>
         public List<Invitation> Invitations { get; set; }
 
+        /// <summary>A list of roles for the user (not added to database)</summary>
+        public string[] Roles { get; set; }
+
         // Ignoring Identity fields
         [JsonIgnore]
         public override string PasswordHash { get; set; }

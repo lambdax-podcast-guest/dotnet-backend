@@ -7,12 +7,13 @@ using System.Text;
 using Guests.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using Guests;
 
 namespace Guests.Helpers
 {
     public class TokenManager
     {
-        public TokenManager(IConfiguration configuration) { }
+        public TokenManager() { }
         public static string GenerateToken(Tuple<IList<string>, AppUser> user)
         {
             ClaimsIdentity claimsIdentity = new ClaimsIdentity(user.Item1.Select(role => new Claim(ClaimTypes.Role, role)));

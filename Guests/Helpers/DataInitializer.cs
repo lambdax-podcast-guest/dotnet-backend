@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using System.Collections.Generic;
-using Guests.Models;
+using Guests.Entities;
 
 namespace Guests.Helpers
 {
@@ -15,18 +15,21 @@ namespace Guests.Helpers
 
         private static void SeedRoles(RoleManager<IdentityRole> roleManager)
         {
-            if (!roleManager.RoleExistsAsync("Host").Result)
+            if (!roleManager.RoleExistsAsync(Role.Admin).Result)
             {
-                IdentityRole role = new IdentityRole();
-                role.Name = "Host";
+                IdentityRole role = new IdentityRole() { Name = Role.Admin };
                 IdentityResult roleResult = roleManager.CreateAsync(role).Result;
             }
 
-
-            if (!roleManager.RoleExistsAsync("Guest").Result)
+            if (!roleManager.RoleExistsAsync(Role.Host).Result)
             {
-                IdentityRole role = new IdentityRole();
-                role.Name = "Guest";
+                IdentityRole role = new IdentityRole() { Name = Role.Host };
+                IdentityResult roleResult = roleManager.CreateAsync(role).Result;
+            }
+
+            if (!roleManager.RoleExistsAsync(Role.Guest).Result)
+            {
+                IdentityRole role = new IdentityRole() { Name = Role.Guest };
                 IdentityResult roleResult = roleManager.CreateAsync(role).Result;
             }
         }

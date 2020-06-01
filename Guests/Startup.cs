@@ -14,11 +14,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using System.Data.SqlClient;
-using System.Data.OleDb;
-using System.Data.OracleClient;
-using System.Data.Odbc;
-using System.Linq;
+using Microsoft.Extensions.Logging;
 using Npgsql;
 
 namespace Guests
@@ -36,15 +32,12 @@ namespace Guests
         internal static IConfiguration Configuration { get; private set; }
         internal static IWebHostEnvironment environment { get; private set; }
 
+
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddCors(options => options.AddPolicy("Custom",
-               builder =>
-               {
-                   string[] origins = Configuration["CorsOrigin"].Split(' ');
-                   builder.WithOrigins(origins).AllowAnyHeader().AllowAnyMethod();
-               }));
+               builder => builder.WithOrigins(Configuration["CorsOrigin"].Split(' ')).AllowAnyHeader().AllowAnyMethod()));
             NpgsqlConnectionStringBuilder builder = new NpgsqlConnectionStringBuilder();
             if (environment.IsDevelopment())
             {
@@ -56,6 +49,14 @@ namespace Guests
                 builder.Add("Port", 5432);
                 builder.Add("Database", Configuration["HerokuDatabase"]);
                 builder.Add("Host", Configuration["HerokuHost"]);
+            }
+            else if (environment.IsEnvironment("Test"))
+            {
+                builder.Add("User ID", Configuration["TestUsername"]);
+                builder.Add("Password", Configuration["TestPassword"]);
+                builder.Add("Port", 5432);
+                builder.Add("Database", Configuration["TestDatabase"]);
+                builder.Add("Host", Configuration["TestHost"]);
             }
             else
             {
@@ -131,6 +132,16 @@ namespace Guests
                         ValidateAudience = false
                     };
                 });
+
+            // add logging in the test env and dev env
+            if (environment.IsEnvironment("Test") || environment.IsDevelopment())
+            {
+                services.AddLogging(logging =>
+                {
+                    logging.AddConsole();
+                    logging.AddDebug();
+                });
+            }
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

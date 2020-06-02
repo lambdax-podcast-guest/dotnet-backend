@@ -27,8 +27,12 @@ namespace Guests.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Podcast>>> GetPodcasts()
         {
+            // for async
             await Task.Delay(500);
-            var podcasts = _context.Podcasts.Where(pc => pc.Name == User.Claims.First(c => c.Type == ClaimTypes.Name).Value);
+            // get user claim containing user's id
+            string userId = User.Claims.First(c => c.Type == ClaimTypes.Name).Value;
+            // get podcasts whose host(s)/guest(s) has user's id
+            var podcasts = _context.Podcasts.Where(pc => pc.PodcastHosts.Any(pch => pch.HostId == userId) || pc.PodcastGuests.Any(pcg => pcg.GuestId == userId));
             if (podcasts.Count() == 0) { return NotFound("There are no podcasts assigned to you"); }
             return Ok(podcasts);
         }

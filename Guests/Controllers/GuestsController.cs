@@ -31,10 +31,15 @@ namespace Guests.Controllers
             var guests = await _userManager.GetUsersInRoleAsync(Role.Guest);
             // If there are no guests don't bother normalizing the output
             if (guests.Count == 0) return Ok("Sorry, there are no guests...");
-            // Populate roles for all users
-            await Task.WhenAll(guests.Select(guest => _userManager.PopulateRolesAsync(guest)));
-            // Return the matching guest
-            return Ok(guests);
+            try
+            {
+                // Populate roles for all users
+                await Task.WhenAll(guests.Select(guest => _userManager.PopulateRolesAsync(guest)));
+                // Return the matching guest
+                return Ok(guests);
+            }
+            // If an error occurs, respond with 500 status
+            catch (Exception) { return StatusCode(500); }
         }
 
         // Doesn't really do anything. Just an example of how this could look

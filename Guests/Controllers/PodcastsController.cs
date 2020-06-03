@@ -54,16 +54,30 @@ namespace Guests.Controllers
                 Podcast newPodcast = new Podcast() { Name = input.Name, Description = input.Description, HeadLine = input.HeadLine };
                 // Get id for user who is making new podcast
                 string userId = User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value;
+                // Create new host
+                PodcastHost host = new PodcastHost() { HostId = userId, PodcastId = newPodcast.Id };
                 // Populate host list with user
-                List<PodcastHost> hostList = new List<PodcastHost>() { new PodcastHost() { HostId = userId, PodcastId = newPodcast.Id } };
+                List<PodcastHost> hostList = new List<PodcastHost>() { host };
+                // Save host to db
+                await _context.PodcastHosts.AddAsync(host);
                 // add hosts to podcast
                 newPodcast.PodcastHosts = hostList;
                 // initiate guest list
                 List<PodcastGuest> guestList = new List<PodcastGuest>();
                 // add each guest from input to guest list
-                foreach (string id in input.PodcastGuests.Select(g => g.GuestId)) { guestList.Add(new PodcastGuest() { GuestId = id, PodcastId = newPodcast.Id }); }
+                foreach (string id in input.PodcastGuests.Select(g => g.GuestId))
+                {
+                    // Create new guest
+                    PodcastGuest guest = new PodcastGuest() { GuestId = id, PodcastId = newPodcast.Id }
+                    // Populate host list with guest
+                    guestList.Add(guest);
+                    // Save guest to db
+                    await _context.PodcastGuests.AddAsync(guest);
+                }
                 // add guests to podcast
                 newPodcast.PodcastGuests = guestList;
+                // add podcast to db
+                await _context.Podcasts.AddAsync(newPodcast);
                 // save changes to db
                 await _context.SaveChangesAsync();
                 // return created if succeeded

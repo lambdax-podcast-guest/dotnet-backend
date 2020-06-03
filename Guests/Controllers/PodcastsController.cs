@@ -68,7 +68,7 @@ namespace Guests.Controllers
                 foreach (string id in input.PodcastGuests.Select(g => g.GuestId))
                 {
                     // Create new guest
-                    PodcastGuest guest = new PodcastGuest() { GuestId = id, PodcastId = newPodcast.Id }
+                    PodcastGuest guest = new PodcastGuest() { GuestId = id, PodcastId = newPodcast.Id };
                     // Populate host list with guest
                     guestList.Add(guest);
                     // Save guest to db

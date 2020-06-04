@@ -99,6 +99,13 @@ namespace Guests.Models
             GenerateTimestamps();
             return base.SaveChanges();
         }
+        public Podcast PopulateRelationships(Podcast podcast)
+        {
+            podcast.PodcastTopics = PodcastTopics.Where(pt => pt.PodcastId == podcast.Id).ToList();
+            podcast.PodcastHosts = PodcastHosts.Where(ph => ph.PodcastId == podcast.Id).ToList();
+            podcast.PodcastGuests = PodcastGuests.Where(ph => ph.PodcastId == podcast.Id).ToList();
+            return podcast;
+        }
 
         public DbSet<Guest> Guests { get; set; }
         public DbSet<Topic> Topics { get; set; }

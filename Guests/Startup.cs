@@ -71,7 +71,7 @@ namespace Guests
             // make the null value of _connection equal the newly built connectionString
             _connection = builder.ToString();
 
-            services.AddMvc().AddNewtonsoftJson(o => o.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
+            services.AddMvc().AddJsonOptions(o => o.JsonSerializerOptions.IgnoreNullValues = true);
 
             // add swashBuckle through swagger
             services.AddSwaggerGen(options =>
@@ -140,6 +140,7 @@ namespace Guests
                     logging.AddDebug();
                 });
             }
+            services.AddControllers().AddNewtonsoftJson(o => o.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

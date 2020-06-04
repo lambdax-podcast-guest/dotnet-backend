@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Guests.Entities;
 using Guests.Helpers;
 using Guests.Models;
+using Guests.Models.Customizations;
 using Guests.Models.Inputs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -38,12 +39,35 @@ namespace Guests.Controllers
                 // get user claim containing user's id
                 string userId = User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value;
                 // get podcasts whose host(s)/guest(s) has user's id
-                IQueryable<Podcast> podcasts = _context.PodcastHosts.Where(ph => ph.HostId == userId).Select(p => p.Podcast);
+                List<PodcastHost> hosts = _context.PodcastHosts.Where(ph => ph.HostId == userId).ToList();
                 // if no podcasts exist for user, 
-                if (podcasts.Count() == 0) { return NotFound("There are no podcasts assigned to you"); }
+                if (hosts.Count() == 0) { return NotFound("There are no podcasts assigned to you"); }
+                // initiate list of podcasts
+                List<Podcast> podcasts = new List<Podcast>();
+                foreach (PodcastHost host in hosts)
+                {
+                    // get podcast that matches host
+                    Podcast podcast = _context.Podcasts.First(p => p.Id == host.PodcastId);
+                    // populate and add podcast to list
+                    podcasts.Add(_context.PopulateRelationships(podcast));
+                };
                 return Ok(podcasts);
             }
             catch (Exception ex) { return StatusCode(500, ex); }
+        }
+
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Podcast>> GetOnePodcast(int id)
+        {
+            string userId = User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value;
+            try
+            {
+                Podcast match = await _context.Podcasts.FirstAsync(p => p.Id == id);
+                bool isHost = _context.PodcastHosts.Where(ph => ph.PodcastId == match.Id).Any(p => p.HostId == userId);
+                if (isHost) return Ok(_context.PopulateRelationships(match));
+            }
+            catch (Exception ex) { return StatusCode(500, ex); }
+            return Forbid();
         }
 
         [Authorize(Roles = Role.Host)]
@@ -63,8 +87,9 @@ namespace Guests.Controllers
                     Topic topicMatch = topicExists ? _context.Topics.First(t => t.Name == topic) : new Topic() { Name = topic };
                     // create new relationship
                     PodcastTopic relationship = new PodcastTopic() { PodcastId = newPodcast.Id, TopicId = topicMatch.Id };
-                    // add topic to db
+                    // add topic to db if not exists
                     if (!topicExists) await _context.Topics.AddAsync(topicMatch);
+                    // add relationship to podcast
                     newPodcast.PodcastTopics.Add(relationship);
                 }
                 // Get id for user who is making new podcast

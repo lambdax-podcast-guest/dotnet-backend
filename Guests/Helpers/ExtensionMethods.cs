@@ -23,5 +23,6 @@ namespace Guests.Helpers
             // Return the user with its roles
             return user;
         }
+
     }
 }

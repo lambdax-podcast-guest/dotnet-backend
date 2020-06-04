@@ -40,7 +40,7 @@ namespace Guests.Controllers
                 string userId = User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value;
                 // get podcasts whose host(s)/guest(s) has user's id
                 List<PodcastHost> hosts = _context.PodcastHosts.Where(ph => ph.HostId == userId).ToList();
-                // if no podcasts exist for user, 
+                // if no podcasts exist for user, return 404
                 if (hosts.Count() == 0) { return NotFound("There are no podcasts assigned to you"); }
                 // initiate list of podcasts
                 List<Podcast> podcasts = new List<Podcast>();
@@ -53,20 +53,27 @@ namespace Guests.Controllers
                 };
                 return Ok(podcasts);
             }
+            // expose exception if fails
             catch (Exception ex) { return StatusCode(500, ex); }
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<Podcast>> GetOnePodcast(int id)
         {
+            // get user's id
             string userId = User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value;
             try
             {
+                // find podcast matching id
                 Podcast match = await _context.Podcasts.FirstAsync(p => p.Id == id);
+                // check to see if user's id is a host
                 bool isHost = _context.PodcastHosts.Where(ph => ph.PodcastId == match.Id).Any(p => p.HostId == userId);
+                // populate and return match
                 if (isHost) return Ok(_context.PopulateRelationships(match));
             }
+            // expose exception if fails
             catch (Exception ex) { return StatusCode(500, ex); }
+            // if the user's id doesn't match a host, forbid
             return Forbid();
         }
 
@@ -84,7 +91,7 @@ namespace Guests.Controllers
                     // check for existing topic
                     bool topicExists = _context.Topics.Any(t => t.Name == topic);
                     // either create new topic or find existing topic
-                    Topic topicMatch = topicExists ? _context.Topics.First(t => t.Name == topic) : new Topic() { Name = topic };
+                    Topic topicMatch = topicExists ? _context.Topics.First(t => t.Name == topic) : new Topic() { Id = _context.Topics.Count() + 1, Name = topic };
                     // create new relationship
                     PodcastTopic relationship = new PodcastTopic() { PodcastId = newPodcast.Id, TopicId = topicMatch.Id };
                     // add topic to db if not exists
@@ -103,9 +110,9 @@ namespace Guests.Controllers
                 // save changes to db
                 await _context.SaveChangesAsync();
                 // return created if succeeded
-                return Created(newPodcast.Id.ToString(), newPodcast);
+                return Created(newPodcast.Id.ToString(), newPodcast.Id);
             }
-            // return 500 if error occurred
+            // expose exception if fails
             catch (Exception ex) { return StatusCode(500, ex); }
         }
     }

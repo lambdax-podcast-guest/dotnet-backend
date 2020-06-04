@@ -13,13 +13,12 @@ namespace Guests.Models
         public int PodcastId { get; set; }
 
         [JsonIgnore]
-        public Podcast Podcast { get; set; }
+        public virtual Podcast Podcast { get; set; }
 
         [Required]
         public string HostId { get; set; }
 
-        [JsonIgnore]
-        public AppUser User { get; set; }
+        public virtual AppUser User { get; set; }
 
     }
 }

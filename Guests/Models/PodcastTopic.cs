@@ -18,7 +18,6 @@ namespace Guests.Models
         [Required]
         public int TopicId { get; set; }
 
-        [JsonIgnore]
         public virtual Topic Topic { get; set; }
 
     }

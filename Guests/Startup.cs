@@ -71,7 +71,13 @@ namespace Guests
             // make the null value of _connection equal the newly built connectionString
             _connection = builder.ToString();
 
-            services.AddMvc().AddJsonOptions(o => o.JsonSerializerOptions.IgnoreNullValues = true);
+            services.AddMvc(o => o.EnableEndpointRouting = false)
+                .AddNewtonsoftJson(o =>
+                {
+                    o.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+                    o.SerializerSettings.PreserveReferencesHandling = Newtonsoft.Json.PreserveReferencesHandling.Objects;
+                })
+                .AddJsonOptions(o => o.JsonSerializerOptions.IgnoreNullValues = true);
 
             // add swashBuckle through swagger
             services.AddSwaggerGen(options =>
@@ -85,7 +91,7 @@ namespace Guests
                         Contact = new OpenApiContact
                         {
                             Name = "Charlie FN Rogers, Steve Smodish, Brandon Porter, David Freitag",
-                                Url = new Uri("https://lambdax-podcast-guest.github.io/FrontEndView/"),
+                                Url = new Uri("https://podcast-guest.netlify.com"),
                         },
                         License = new OpenApiLicense
                         {
@@ -140,7 +146,6 @@ namespace Guests
                     logging.AddDebug();
                 });
             }
-            services.AddControllers().AddNewtonsoftJson(o => o.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

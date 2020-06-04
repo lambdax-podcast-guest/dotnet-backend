@@ -8,12 +8,12 @@ namespace Guests.Models.ModelsConfig
         public void Configure(EntityTypeBuilder<PodcastTopic> builder)
         {
             builder.HasOne(pt => pt.Podcast)
-            .WithMany(p => p.PodcastTopics)
-            .HasForeignKey(pt => pt.PodcastId);
+                .WithMany(p => p.PodcastTopics)
+                .HasForeignKey(pt => pt.PodcastId);
 
             builder.HasOne(pt => pt.Topic)
-            .WithMany(t => t.PodcastTopics)
-            .HasForeignKey(pt => pt.TopicId);
+                .WithMany(t => t.PodcastTopics)
+                .HasForeignKey(pt => pt.TopicId);
         }
     }
 }

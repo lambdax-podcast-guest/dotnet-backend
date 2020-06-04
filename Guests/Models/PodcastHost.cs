@@ -1,5 +1,6 @@
-using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace Guests.Models
 {
@@ -9,12 +10,15 @@ namespace Guests.Models
         public int Id { get; set; }
 
         [Required]
-        [ForeignKey("Podcast")]
         public int PodcastId { get; set; }
+
+        [JsonIgnore]
         public Podcast Podcast { get; set; }
+
         [Required]
-        [ForeignKey("User")]
         public string HostId { get; set; }
+
+        [JsonIgnore]
         public AppUser User { get; set; }
 
     }

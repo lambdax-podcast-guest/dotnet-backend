@@ -50,11 +50,11 @@ namespace Guests.Controllers
         [HttpPost]
         public async Task<ActionResult<Podcast>> PostPodcast([FromBody] PodcastInput input)
         {
+            if (!ModelState.IsValid) return UnprocessableEntity(ModelState);
             try
             {
                 // Create new podcast with input information, not including hosts or guests
                 Podcast newPodcast = new Podcast() { Name = input.Name, Description = input.Description, HeadLine = input.HeadLine, PodcastTopics = new List<PodcastTopic>(), PodcastHosts = new List<PodcastHost>() };
-                // List<PodcastTopic> topics = new List<PodcastTopic>();
                 foreach (string topic in input.Topics)
                 {
                     // check for existing topic
@@ -66,14 +66,12 @@ namespace Guests.Controllers
                     // add topic to db
                     if (!topicExists) await _context.Topics.AddAsync(topicMatch);
                     newPodcast.PodcastTopics.Add(relationship);
-                    // add to db
-                    // await _context.PodcastTopics.AddAsync(relationship);
                 }
                 // Get id for user who is making new podcast
                 string userId = User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value;
                 // Create new host
                 PodcastHost host = new PodcastHost() { HostId = userId, PodcastId = newPodcast.Id };
-                // Save host to db
+                // add host to podcast
                 newPodcast.PodcastHosts.Add(host);
                 // add podcast to db
                 await _context.Podcasts.AddAsync(newPodcast);
@@ -83,7 +81,7 @@ namespace Guests.Controllers
                 return Created(newPodcast.Id.ToString(), newPodcast);
             }
             // return 500 if error occurred
-            catch (Exception ex) { return StatusCode(500, ex.InnerException); }
+            catch (Exception ex) { return StatusCode(500, ex); }
         }
     }
 }

@@ -86,16 +86,21 @@ namespace Guests.Controllers
             {
                 // Create new podcast with input information, not including hosts or guests
                 Podcast newPodcast = new Podcast() { Name = input.Name, Description = input.Description, HeadLine = input.HeadLine, PodcastTopics = new List<PodcastTopic>(), PodcastHosts = new List<PodcastHost>() };
+                int id = 1;
                 foreach (string topic in input.Topics)
                 {
                     // check for existing topic
                     bool topicExists = _context.Topics.Any(t => t.Name == topic);
                     // either create new topic or find existing topic
-                    Topic topicMatch = topicExists ? _context.Topics.First(t => t.Name == topic) : new Topic() { Id = _context.Topics.Count() + 1, Name = topic };
+                    Topic topicMatch = topicExists ? _context.Topics.First(t => t.Name == topic) : new Topic() { Id = _context.Topics.Count() + id, Name = topic };
                     // create new relationship
                     PodcastTopic relationship = new PodcastTopic() { PodcastId = newPodcast.Id, TopicId = topicMatch.Id };
                     // add topic to db if not exists
-                    if (!topicExists) await _context.Topics.AddAsync(topicMatch);
+                    if (!topicExists)
+                    {
+                        await _context.Topics.AddAsync(topicMatch);
+                        id++;
+                    }
                     // add relationship to podcast
                     newPodcast.PodcastTopics.Add(relationship);
                 }
@@ -110,7 +115,7 @@ namespace Guests.Controllers
                 // save changes to db
                 await _context.SaveChangesAsync();
                 // return created if succeeded
-                return Created(newPodcast.Id.ToString(), newPodcast.Id);
+                return Created(HttpContext.Request.Path, newPodcast.Id);
             }
             // expose exception if fails
             catch (Exception ex) { return StatusCode(500, ex); }

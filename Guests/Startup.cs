@@ -1,5 +1,4 @@
 using System;
-using System.Data.Common;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 using Guests.Helpers;

@@ -16,14 +16,9 @@ namespace Guests.Controllers
     [Route("api/[controller]")]
     public class GuestsController : Controller
     {
-        private readonly AppUserContext Context;
         private UserManager<AppUser> _userManager;
 
-        public GuestsController(AppUserContext context, UserManager<AppUser> userManager)
-        {
-            Context = context;
-            _userManager = userManager;
-        }
+        public GuestsController(UserManager<AppUser> userManager) { _userManager = userManager; }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<AppUser>>> GetGuests()

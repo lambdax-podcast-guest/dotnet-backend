@@ -99,31 +99,6 @@ namespace Guests.Models
             GenerateTimestamps();
             return base.SaveChanges();
         }
-        public Podcast PopulateRelationships(Podcast podcast)
-        {
-            podcast.PodcastTopics = PodcastTopics
-                .Where(pt => pt.PodcastId == podcast.Id)
-                .Select(pt => new PodcastTopic()
-                {
-                    Podcast = Podcasts.First(p => p.Id == pt.PodcastId),
-                        PodcastId = pt.PodcastId,
-                        Topic = Topics.First(t => t.Id == pt.TopicId),
-                        TopicId = pt.TopicId
-                })
-                .ToList();
-            podcast.PodcastHosts = PodcastHosts
-                .Where(ph => ph.PodcastId == podcast.Id)
-                .Select(ph => new PodcastHost()
-                {
-                    Podcast = Podcasts.First(p => p.Id == ph.PodcastId),
-                        PodcastId = ph.PodcastId,
-                        User = Users.First(u => u.Id == ph.HostId),
-                        HostId = ph.HostId
-                })
-                .ToList();
-            podcast.PodcastGuests = PodcastGuests.Where(ph => ph.PodcastId == podcast.Id).ToList();
-            return podcast;
-        }
 
         public DbSet<Guest> Guests { get; set; }
         public DbSet<Topic> Topics { get; set; }

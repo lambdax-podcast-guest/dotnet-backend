@@ -16,13 +16,8 @@ namespace Guests.Controllers
     [Route("api/[controller]")]
     public class HostsController : ControllerBase
     {
-        private readonly AppUserContext _context;
         private UserManager<AppUser> _userManager;
-        public HostsController(AppUserContext context, UserManager<AppUser> userManager)
-        {
-            _context = context;
-            _userManager = userManager;
-        }
+        public HostsController(UserManager<AppUser> userManager) { _userManager = userManager; }
 
         // GET api/hosts
         [HttpGet]

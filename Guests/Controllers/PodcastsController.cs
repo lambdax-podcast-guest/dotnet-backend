@@ -4,12 +4,9 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Guests.Entities;
-using Guests.Helpers;
 using Guests.Models;
-using Guests.Models.Customizations;
 using Guests.Models.Inputs;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -21,13 +18,8 @@ namespace Guests.Controllers
     public class PodcastsController : ControllerBase
     {
         private readonly AppUserContext _context;
-        private readonly UserManager<AppUser> _userManager;
 
-        public PodcastsController(AppUserContext context, UserManager<AppUser> userManager)
-        {
-            _context = context;
-            _userManager = userManager;
-        }
+        public PodcastsController(AppUserContext context) { _context = context; }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Podcast>>> GetPodcasts()

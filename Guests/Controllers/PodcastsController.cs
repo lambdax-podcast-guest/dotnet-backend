@@ -24,7 +24,7 @@ namespace Guests.Controllers
 
         private async Task<Podcast> AddTopics(Podcast p, string[] topics)
         {
-            if (p.PodcastTopics.Count < 1) p.PodcastTopics = new List<PodcastTopic>();
+            if (p.PodcastTopics == null) p.PodcastTopics = new List<PodcastTopic>();
             int id = 1;
             foreach (string topic in topics)
             {

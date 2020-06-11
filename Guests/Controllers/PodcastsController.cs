@@ -22,6 +22,30 @@ namespace Guests.Controllers
 
         public PodcastsController(AppUserContext context) { _context = context; }
 
+        private async Task<Podcast> AddTopics(Podcast p, string[] topics)
+        {
+            if (p.PodcastTopics.Count < 1) p.PodcastTopics = new List<PodcastTopic>();
+            int id = 1;
+            foreach (string topic in topics)
+            {
+                // check for existing topic
+                bool topicExists = _context.Topics.Any(t => t.Name == topic);
+                // either create new topic or find existing topic
+                Topic topicMatch = topicExists ? _context.Topics.First(t => t.Name == topic) : new Topic() { Id = _context.Topics.Count() + id, Name = topic };
+                // create new relationship
+                PodcastTopic relationship = new PodcastTopic() { PodcastId = p.Id, TopicId = topicMatch.Id };
+                // add topic to db if not exists
+                if (!topicExists)
+                {
+                    await _context.Topics.AddAsync(topicMatch);
+                    id++;
+                }
+                // add relationship to podcast if the podcast doesn't have it already
+                if (!p.PodcastTopics.Any(pt => pt.TopicId == topicMatch.Id)) p.PodcastTopics.Add(relationship);
+            }
+            return p;
+        }
+
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Podcast>>> GetPodcasts()
         {
@@ -74,25 +98,9 @@ namespace Guests.Controllers
             try
             {
                 // Create new podcast with input information, not including hosts or guests
-                Podcast newPodcast = new Podcast() { Name = input.Name, Description = input.Description, HeadLine = input.HeadLine, PodcastTopics = new List<PodcastTopic>(), PodcastHosts = new List<PodcastHost>() };
-                int id = 1;
-                foreach (string topic in input.Topics)
-                {
-                    // check for existing topic
-                    bool topicExists = _context.Topics.Any(t => t.Name == topic);
-                    // either create new topic or find existing topic
-                    Topic topicMatch = topicExists ? _context.Topics.First(t => t.Name == topic) : new Topic() { Id = _context.Topics.Count() + id, Name = topic };
-                    // create new relationship
-                    PodcastTopic relationship = new PodcastTopic() { PodcastId = newPodcast.Id, TopicId = topicMatch.Id };
-                    // add topic to db if not exists
-                    if (!topicExists)
-                    {
-                        await _context.Topics.AddAsync(topicMatch);
-                        id++;
-                    }
-                    // add relationship to podcast
-                    newPodcast.PodcastTopics.Add(relationship);
-                }
+                Podcast newPodcast = new Podcast() { Name = input.Name, Description = input.Description, HeadLine = input.HeadLine, PodcastHosts = new List<PodcastHost>() };
+                // add topics to podcast
+                await AddTopics(newPodcast, input.Topics);
                 // Get id for user who is making new podcast
                 string userId = User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value;
                 // Create new host
@@ -105,6 +113,31 @@ namespace Guests.Controllers
                 await _context.SaveChangesAsync();
                 // return created if succeeded
                 return Created(HttpContext.Request.Path, newPodcast.Id);
+            }
+            // expose exception if fails
+            catch (Exception ex) { return StatusCode(500, ex); }
+        }
+
+        [AuthorizePodcast]
+        [HttpPut("{id}")]
+        public async Task<ActionResult<Podcast>> UpdatePodcast(int id, [FromBody] PodcastInput input)
+        {
+            try
+            {
+                // get podcast matching id
+                Podcast match = _context.Podcasts
+                    .Include(p => p.PodcastTopics)
+                    .First(p => p.Id == id);
+                // update all fields
+                match.HeadLine = input.HeadLine;
+                match.Description = input.Description;
+                match.Name = input.Name;
+                // add topics to matching podcast
+                await AddTopics(match, input.Topics);
+                // save the changes
+                await _context.SaveChangesAsync();
+                // return the id of the matching podcast
+                return Ok(match.Id);
             }
             // expose exception if fails
             catch (Exception ex) { return StatusCode(500, ex); }

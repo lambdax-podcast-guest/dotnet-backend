@@ -92,7 +92,7 @@ namespace Guests.Controllers
 
         [Authorize(Roles = Role.Host)]
         [HttpPost]
-        public async Task<ActionResult<Podcast>> PostPodcast([FromBody] PodcastInput input)
+        public async Task<ActionResult<int>> PostPodcast([FromBody] PodcastInput input)
         {
             if (!ModelState.IsValid) return UnprocessableEntity(ModelState);
             try
@@ -120,7 +120,7 @@ namespace Guests.Controllers
 
         [AuthorizePodcast]
         [HttpPut("{id}")]
-        public async Task<ActionResult<Podcast>> UpdatePodcast(int id, [FromBody] PodcastInput input)
+        public async Task<ActionResult<int>> UpdatePodcast(int id, [FromBody] PodcastInput input)
         {
             try
             {
@@ -138,6 +138,25 @@ namespace Guests.Controllers
                 await _context.SaveChangesAsync();
                 // return the id of the matching podcast
                 return Ok(match.Id);
+            }
+            // expose exception if fails
+            catch (Exception ex) { return StatusCode(500, ex); }
+        }
+
+        [AuthorizePodcast]
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> DeletePodcast(int id)
+        {
+            try
+            {
+                // get matching podcast
+                Podcast match = _context.Podcasts.First(p => p.Id == id);
+                // remove podcast
+                _context.Podcasts.Remove(match);
+                // save changes
+                await _context.SaveChangesAsync();
+                // return 200
+                return Ok();
             }
             // expose exception if fails
             catch (Exception ex) { return StatusCode(500, ex); }

@@ -5,6 +5,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Guests.Entities;
 using Guests.Models;
+using Guests.Models.Customizations;
 using Guests.Models.Inputs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -28,12 +29,15 @@ namespace Guests.Controllers
             {
                 // get user claim containing user's id
                 string userId = User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value;
-                // get all podcasts with user as host
+                // get all podcasts
                 List<Podcast> podcasts = await _context.Podcasts
                     .Include(p => p.PodcastGuests)
                     .Include(p => p.PodcastHosts)
                     .Include(p => p.PodcastTopics)
-                    .Where(p => p.PodcastHosts.Any(ph => ph.HostId == userId))
+                    // with user as host
+                    .Where(p => p.PodcastHosts.Any(ph => ph.HostId == userId) ||
+                        // or guest
+                        p.PodcastGuests.Any(pg => pg.GuestId == userId))
                     .ToListAsync();
                 return Ok(podcasts);
             }
@@ -41,6 +45,7 @@ namespace Guests.Controllers
             catch (Exception ex) { return StatusCode(500, ex); }
         }
 
+        [AuthorizePodcast]
         [HttpGet("{id}")]
         public async Task<ActionResult<Podcast>> GetOnePodcast(int id)
         {
@@ -54,10 +59,6 @@ namespace Guests.Controllers
                     .Include(p => p.PodcastHosts)
                     .Include(p => p.PodcastTopics)
                     .FirstAsync(p => p.Id == id);
-                // check to see if user's id is a host
-                bool isHost = match.PodcastHosts.Where(ph => ph.PodcastId == match.Id).Any(p => p.HostId == userId);
-                // if the user's id doesn't match a host, forbid
-                if (!isHost) return Forbid();
                 // populate and return match
                 return Ok(match);
             }

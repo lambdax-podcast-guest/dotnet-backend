@@ -1,5 +1,4 @@
 using System;
-using System.Data.Common;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 using Guests.Helpers;
@@ -12,9 +11,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using Microsoft.Extensions.Logging;
 using Npgsql;
 
 namespace Guests
@@ -32,12 +31,11 @@ namespace Guests
         internal static IConfiguration Configuration { get; private set; }
         internal static IWebHostEnvironment environment { get; private set; }
 
-
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddCors(options => options.AddPolicy("Custom",
-               builder => builder.WithOrigins(Configuration["CorsOrigin"].Split(' ')).AllowAnyHeader().AllowAnyMethod()));
+                builder => builder.WithOrigins(Configuration["CorsOrigin"].Split(' ')).AllowAnyHeader().AllowAnyMethod()));
             NpgsqlConnectionStringBuilder builder = new NpgsqlConnectionStringBuilder();
             if (environment.IsDevelopment())
             {
@@ -72,7 +70,13 @@ namespace Guests
             // make the null value of _connection equal the newly built connectionString
             _connection = builder.ToString();
 
-            services.AddMvc();
+            services.AddMvc(o => o.EnableEndpointRouting = false)
+                .AddNewtonsoftJson(o =>
+                {
+                    o.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+                    o.SerializerSettings.PreserveReferencesHandling = Newtonsoft.Json.PreserveReferencesHandling.Objects;
+                })
+                .AddJsonOptions(o => o.JsonSerializerOptions.IgnoreNullValues = true);
 
             // add swashBuckle through swagger
             services.AddSwaggerGen(options =>
@@ -80,22 +84,21 @@ namespace Guests
                 options.SwaggerDoc("v1", new OpenApiInfo
                 {
                     Title = "Podcast Guests API",
-                    Version = "v1",
-                    Description = "Backend for Podcast Guests",
-                    // TermsOfService = new Uri("https://example.com/terms"),
-                    Contact = new OpenApiContact
-                    {
-                        Name = "Charlie FN Rogers, Steve Smodish, Brandon Porter, David Freitag",
-                        Url = new Uri("https://lambdax-podcast-guest.github.io/FrontEndView/"),
-                    },
-                    License = new OpenApiLicense
-                    {
-                        Name = "Using MIT Open Source License",
-                        Url = new Uri("https://opensource.org/licenses/MIT"),
-                    }
+                        Version = "v1",
+                        Description = "Backend for Podcast Guests",
+                        // TermsOfService = new Uri("https://example.com/terms"),
+                        Contact = new OpenApiContact
+                        {
+                            Name = "Charlie FN Rogers, Steve Smodish, Brandon Porter, David Freitag",
+                                Url = new Uri("https://podcast-guest.netlify.com"),
+                        },
+                        License = new OpenApiLicense
+                        {
+                            Name = "Using MIT Open Source License",
+                                Url = new Uri("https://opensource.org/licenses/MIT"),
+                        }
                 });
-            }
-            );
+            });
 
             // allow us to use HttpContext within DbContext
             services.AddHttpContextAccessor();
@@ -105,9 +108,9 @@ namespace Guests
 
             // Add Identity
             services.AddIdentity<AppUser, IdentityRole>(options =>
-            {
-                options.User.RequireUniqueEmail = true;
-            })
+                {
+                    options.User.RequireUniqueEmail = true;
+                })
                 .AddRoles<IdentityRole>()
                 .AddEntityFrameworkStores<AppUserContext>()
                 .AddDefaultTokenProviders();

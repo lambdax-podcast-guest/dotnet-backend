@@ -73,8 +73,7 @@ namespace Guests.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Podcast>> GetOnePodcast(int id)
         {
-            // get user's id
-            string userId = User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value;
+            if (_context.Podcasts.Find(id) == null) return NotFound();
             try
             {
                 // find podcast matching id

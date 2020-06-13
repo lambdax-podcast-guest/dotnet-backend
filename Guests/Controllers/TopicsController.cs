@@ -39,7 +39,7 @@ namespace Guests.Controllers
             {
                 Topic match = await context.Topics
                     .Include(t => t.PodcastTopics)
-                    .Include(t => t.GuestTopics)
+                    .ThenInclude(p => p.Podcast)
                     .FirstAsync(t => t.Id == id);
                 return Ok(match);
             }

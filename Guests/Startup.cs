@@ -70,13 +70,13 @@ namespace Guests
             // make the null value of _connection equal the newly built connectionString
             _connection = builder.ToString();
 
-            services.AddMvc(o => o.EnableEndpointRouting = false)
+            services.AddControllers()
                 .AddNewtonsoftJson(o =>
                 {
                     o.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
                     o.SerializerSettings.PreserveReferencesHandling = Newtonsoft.Json.PreserveReferencesHandling.Objects;
-                })
-                .AddJsonOptions(o => o.JsonSerializerOptions.IgnoreNullValues = true);
+                    o.SerializerSettings.NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore;
+                });
 
             // add swashBuckle through swagger
             services.AddSwaggerGen(options =>

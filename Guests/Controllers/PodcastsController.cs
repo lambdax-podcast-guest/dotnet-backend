@@ -58,6 +58,7 @@ namespace Guests.Controllers
                     .Include(p => p.PodcastGuests)
                     .Include(p => p.PodcastHosts)
                     .Include(p => p.PodcastTopics)
+                    .ThenInclude(pt => pt.Topic)
                     // with user as host
                     .Where(p => p.PodcastHosts.Any(ph => ph.HostId == userId) ||
                         // or guest
@@ -81,6 +82,7 @@ namespace Guests.Controllers
                     .Include(p => p.PodcastGuests)
                     .Include(p => p.PodcastHosts)
                     .Include(p => p.PodcastTopics)
+                    .ThenInclude(pt => pt.Topic)
                     .FirstAsync(p => p.Id == id);
                 // populate and return match
                 return Ok(match);

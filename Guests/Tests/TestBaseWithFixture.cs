@@ -16,6 +16,7 @@ namespace Guests.Tests
     {
         public DatabaseFixture fixture { get; private set; }
         public ITestOutputHelper outputter { get; private set; }
+
         public TestBaseWithFixture(DatabaseFixture fixture, ITestOutputHelper output)
         {
             this.fixture = fixture;

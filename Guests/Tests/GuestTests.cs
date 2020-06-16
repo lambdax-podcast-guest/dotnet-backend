@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using FluentAssertions;
@@ -9,15 +11,23 @@ namespace Guests.Tests
 {
     public class GuestTests : TestBaseWithFixture
     {
+        public Func<IEnumerable<object[]>> AuthDataGenerator { get; }
+        public static IEnumerable<object[]> GetData()
+        {
+            yield return new object[] { "/api/guests", HttpMethod.Get };
+        }
+
         public GuestTests(DatabaseFixture fixture, ITestOutputHelper output) : base(fixture, output) { }
 
-        // /// <summary>
-        // /// Test that the get guests endpoint returns an array of guest objects
-        // /// </summary>
-        // [Fact]
-        // public async void TestGetReturnsArrayOfGuests() {
-
-        // }
+        /// <summary>
+        /// Test the endpoints of the guest controller that are protected with the Authorize Attribute
+        /// </summary>
+        [Theory]
+        [MemberData(nameof(GetData))]
+        public async void TestAuthorize(string endpoint, HttpMethod method)
+        {
+            await AuthHelpers.TestAuthorize(endpoint, method, fixture.httpClient);
+        }
 
         /// <summary>
         /// Test that the get guests endpoint does not return the guests password hash on the response body object

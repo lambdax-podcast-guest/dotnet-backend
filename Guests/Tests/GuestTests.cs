@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Threading.Tasks;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Xunit;
@@ -11,22 +12,17 @@ namespace Guests.Tests
 {
     public class GuestTests : TestBaseWithFixture
     {
-        public Func<IEnumerable<object[]>> AuthDataGenerator { get; }
+        public GuestTests(DatabaseFixture fixture, ITestOutputHelper output) : base(fixture, output) { }
         public static IEnumerable<object[]> GetData()
         {
             yield return new object[] { "/api/guests", HttpMethod.Get };
         }
 
-        public GuestTests(DatabaseFixture fixture, ITestOutputHelper output) : base(fixture, output) { }
-
-        /// <summary>
-        /// Test the endpoints of the guest controller that are protected with the Authorize Attribute
-        /// </summary>
         [Theory]
         [MemberData(nameof(GetData))]
-        public async void TestAuthorize(string endpoint, HttpMethod method)
+        public async override Task AuthorizeAttributeTests(string endpoint, HttpMethod method)
         {
-            await AuthHelpers.TestAuthorize(endpoint, method, fixture.httpClient);
+            await base.AuthorizeAttributeTests(endpoint, method);
         }
 
         /// <summary>

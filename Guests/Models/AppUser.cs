@@ -1,8 +1,8 @@
-﻿using System.ComponentModel.DataAnnotations;
-using Microsoft.AspNetCore.Identity;
+﻿using System;
 using System.Collections.Generic;
-using System.Text.Json.Serialization;
-using System;
+using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Identity;
+using Newtonsoft.Json;
 
 namespace Guests.Models
 {
@@ -56,26 +56,37 @@ namespace Guests.Models
         // Ignoring Identity fields
         [JsonIgnore]
         public override string PasswordHash { get; set; }
+
         [JsonIgnore]
         public override string UserName { get; set; }
+
         [JsonIgnore]
         public override string NormalizedUserName { get; set; }
+
         [JsonIgnore]
         public override string NormalizedEmail { get; set; }
+
         [JsonIgnore]
         public override bool EmailConfirmed { get; set; }
+
         [JsonIgnore]
         public override string SecurityStamp { get; set; }
+
         [JsonIgnore]
         public override string ConcurrencyStamp { get; set; }
+
         [JsonIgnore]
         public override bool PhoneNumberConfirmed { get; set; }
+
         [JsonIgnore]
         public override bool TwoFactorEnabled { get; set; }
+
         [JsonIgnore]
         public override bool LockoutEnabled { get; set; }
+
         [JsonIgnore]
         public override DateTimeOffset? LockoutEnd { get; set; }
+
         [JsonIgnore]
         public override int AccessFailedCount { get; set; }
     }

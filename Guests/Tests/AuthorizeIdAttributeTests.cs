@@ -9,16 +9,27 @@ using Xunit.Abstractions;
 
 namespace Guests.Tests
 {
+    /// <summary>
+    /// Tests for the AuthorizeId attributes. Add your endpoints and methods to the Class Data classes to test those endpoints that are protected by the AuthorizeId attribute for different factors
+    /// </summary>
     public class AuthorizeIdAttributeTests : TestBaseWithFixture
     {
         public AuthorizeIdAttributeTests(DatabaseFixture fixture, ITestOutputHelper output) : base(fixture, output) { }
 
-        public async Task TestAuthorizeIdBlocksRequestWithNoHeaders(string endpoint, HttpMethod method)
+        [Theory]
+        [ClassData(typeof(EndpointsAndMethodsForNoHeadersTestsOnAuthorizeId))]
+        public async Task TestAuthorizeIdRejectsRequestWithNoHeaders(string endpoint, HttpMethod method, object body)
         {
-
             string nonOwnerId = await AuthHelper.GenerateNonOwnerId(fixture);
+
             // create a new request message
             HttpRequestMessage requestMessageNoHeaders = new HttpRequestMessage(method, endpoint + nonOwnerId);
+
+            // if we've been provided a body for put or post add it here
+            if (body != null)
+            {
+                requestMessageNoHeaders.Content = JsonHelper.CreatePostContent(body);
+            }
 
             // send the request with no headers
             HttpResponseMessage responseWithoutAuthHeaders = await fixture.httpClient.SendAsync(requestMessageNoHeaders);
@@ -43,20 +54,20 @@ namespace Guests.Tests
         //     }
         // }
 
-        public async Task TestAuthorizeIdAllowsOwner()
-        {
+        // public async Task TestAuthorizeIdAllowsOwner()
+        // {
 
-        }
+        // }
 
-        public async Task TestAuthorizeIdBlocksNonOwner()
-        {
+        // public async Task TestAuthorizeIdBlocksNonOwner()
+        // {
 
-        }
+        // }
 
-        public async Task TestAuthorizeIdBlocksNonProvidedRolesThatAreNonOwners()
-        {
+        // public async Task TestAuthorizeIdBlocksNonProvidedRolesThatAreNonOwners()
+        // {
 
-        }
+        // }
         /// <summary>
         /// Override this method on the derived class with [MemberData] or [ClassData] to test your endpoints that use the AuthorizeId attribute
         /// </summary>

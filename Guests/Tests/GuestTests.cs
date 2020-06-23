@@ -13,17 +13,6 @@ namespace Guests.Tests
     public class GuestTests : TestBaseWithFixture
     {
         public GuestTests(DatabaseFixture fixture, ITestOutputHelper output) : base(fixture, output) { }
-        public static IEnumerable<object[]> GetData()
-        {
-            yield return new object[] { "/api/guests", HttpMethod.Get };
-        }
-
-        [Theory]
-        [MemberData(nameof(GetData))]
-        public async override Task AuthorizeAttributeTests(string endpoint, HttpMethod method)
-        {
-            await base.AuthorizeAttributeTests(endpoint, method);
-        }
 
         /// <summary>
         /// Test that the get guests endpoint does not return the guests password hash on the response body object

@@ -29,7 +29,11 @@ namespace Guests.Controllers
                 // If there are no guests don't bother normalizing the output
                 if (guests.Count == 0) return Ok("Sorry, there are no guests...");
                 // Populate roles for all users
-                await Task.WhenAll(guests.Select(guest => _userManager.PopulateRolesAsync(guest)));
+                // this will be a very expensive operation, but since calls to the dbContext can't overlap, each of these calls to PopulateRolesAsync needs to wait for the previous call to complete
+                foreach (AppUser guest in guests)
+                {
+                    await _userManager.PopulateRolesAsync(guest);
+                }
                 // Return the matching guest
                 return Ok(guests);
             }

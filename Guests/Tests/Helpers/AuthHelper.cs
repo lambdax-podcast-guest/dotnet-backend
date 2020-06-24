@@ -1,7 +1,8 @@
 using System.Net.Http;
 using System.Threading.Tasks;
+using Guests.Tests.ReusableFixtures;
 
-namespace Guests.Tests
+namespace Guests.Tests.Helpers
 {
     public class AuthHelper
     {

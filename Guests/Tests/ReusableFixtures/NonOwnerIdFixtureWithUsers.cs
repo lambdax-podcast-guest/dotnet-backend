@@ -4,9 +4,10 @@ using System.Linq;
 using System.Net.Http;
 using System.Reflection;
 using System.Threading.Tasks;
+using Guests.Tests.Helpers;
 using Xunit;
 
-namespace Guests.Tests
+namespace Guests.Tests.ReusableFixtures
 {
     /// <summary>
     /// Inherit from this class to be able to reuse a generic user id as a parameter on user owned resources

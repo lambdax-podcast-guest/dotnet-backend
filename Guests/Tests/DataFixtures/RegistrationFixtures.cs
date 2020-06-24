@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Guests.Models.Inputs;
 
-namespace Guests.Tests
+namespace Guests.Tests.DataFixtures
 {
     /// <summary>
     /// IEnumerable to be used in the bad password tests. GetEnumerator returns the users with the bad passwords, and the expected error message for each

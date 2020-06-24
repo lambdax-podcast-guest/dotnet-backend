@@ -5,8 +5,9 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using System.Threading.Tasks;
 using FluentAssertions;
+using Guests.Tests.ReusableFixtures;
 
-namespace Guests.Tests
+namespace Guests.Tests.Helpers
 {
     public class JsonHelper
     {

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Net.Http;
 using Guests.Entities;
 using Guests.Models.Inputs;
-namespace Guests.Tests
+namespace Guests.Tests.DataFixtures
 {
     /// <summary>
     /// IEnumerable to be used to test that the AuthorizeId attribute rejects a request with no headers

@@ -2,7 +2,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Guests.Models.Inputs;
 
-namespace Guests.Tests
+namespace Guests.Tests.Helpers
 {
     /// <summary>
     /// Helpers for testing the account endpoints: Login, Register, Update and Delete User

@@ -9,6 +9,8 @@ using System.Text.Json;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Guests.Models.Inputs;
+using Guests.Tests.Helpers;
+using Guests.Tests.ReusableFixtures;
 using Microsoft.IdentityModel.Tokens;
 using Xunit;
 using Xunit.Abstractions;

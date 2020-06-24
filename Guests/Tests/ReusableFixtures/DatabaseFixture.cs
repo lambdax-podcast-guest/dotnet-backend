@@ -8,7 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Npgsql;
 using Xunit;
 
-namespace Guests.Tests
+namespace Guests.Tests.ReusableFixtures
 {
 
     /// <summary>

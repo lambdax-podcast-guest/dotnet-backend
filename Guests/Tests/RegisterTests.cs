@@ -5,6 +5,9 @@ using FluentAssertions;
 using FluentAssertions.Execution;
 using Guests.Models;
 using Guests.Models.Inputs;
+using Guests.Tests.DataFixtures;
+using Guests.Tests.Helpers;
+using Guests.Tests.ReusableFixtures;
 using Xunit;
 using Xunit.Abstractions;
 

@@ -4,9 +4,11 @@ using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using FluentAssertions;
 using FluentAssertions.Execution;
+using Guests.Tests.DataFixtures;
+using Guests.Tests.Helpers;
+using Guests.Tests.ReusableFixtures;
 using Xunit;
 using Xunit.Abstractions;
-
 namespace Guests.Tests
 {
     /// <summary>

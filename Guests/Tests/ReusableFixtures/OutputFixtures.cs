@@ -1,4 +1,4 @@
-namespace Guests.Tests
+namespace Guests.Tests.ReusableFixtures
 {
     /// <summary>
     /// The expected shape of the response from the Login Request

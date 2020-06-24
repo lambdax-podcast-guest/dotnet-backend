@@ -12,9 +12,13 @@ namespace Guests.Tests
     /// <summary>
     /// Tests for the AuthorizeId attributes. Add your endpoints and methods to the Class Data classes to test those endpoints that are protected by the AuthorizeId attribute for different factors
     /// </summary>
-    public class AuthorizeIdAttributeTests : TestBaseWithFixture
+    public class AuthorizeIdAttributeTests : TestBaseWithFixture, IClassFixture<NonOwnerIdFixture>
     {
-        public AuthorizeIdAttributeTests(DatabaseFixture fixture, ITestOutputHelper output) : base(fixture, output) { }
+        public string NonOwnerId;
+        public AuthorizeIdAttributeTests(DatabaseFixture fixture, ITestOutputHelper output, NonOwnerIdFixture nonOwnerIdFixture) : base(fixture, output)
+        {
+            NonOwnerId = nonOwnerIdFixture.nonOwnerId;
+        }
 
         /// <summary>
         /// Test that endpoints decorated with AuthorizeId endpoint rejects requests that have no headers
@@ -26,10 +30,8 @@ namespace Guests.Tests
         [ClassData(typeof(EndpointsAndMethodsForNoHeadersTestsOnAuthorizeId))]
         public async Task TestAuthorizeIdRejectsRequestWithNoHeaders(string endpoint, HttpMethod method, object body)
         {
-            string nonOwnerId = await AuthHelper.GenerateNonOwnerId(fixture);
-
             // create a new request message
-            HttpRequestMessage requestMessageNoHeaders = new HttpRequestMessage(method, endpoint + "/" + nonOwnerId);
+            HttpRequestMessage requestMessageNoHeaders = new HttpRequestMessage(method, endpoint + "/" + NonOwnerId);
 
             // if we've been provided a body for put or post add it here
             if (body != null)
@@ -44,6 +46,14 @@ namespace Guests.Tests
             responseWithoutAuthHeaders.IsSuccessStatusCode.Should().BeFalse($"because we expect the {method.ToString()} request to the {endpoint} to fail without auth headers");
         }
 
+        /// <summary>
+        /// Tests that AuthorizeId allows the provided roles to access the resource
+        /// </summary>
+        /// <param name="endpoint">The endpoint to run the request on</param>
+        /// <param name="method">The method to run on the endpoint</param>
+        /// <param name="roles">The roles that should be allowed to pass that endpoint</param>
+        /// <param name="body">The body for a Put or Post request, pass null for Get and Delete</param>
+        /// <returns></returns>
         [Theory]
         [ClassData(typeof(EndpointsAndMethodsForRolesTestOnAuthorizeId))]
         public async Task TestAuthorizeIdAllowsProvidedRolesAndAdmin(string endpoint, HttpMethod method, string[] roles, object body)
@@ -51,7 +61,6 @@ namespace Guests.Tests
             // generate new requests with the tokens on the headers this time
             // whatever roles we passed in are the roles we expect to be authorized
             // use the non owner id since we are testing strictly for roles right now
-            string nonOwnerId = await AuthHelper.GenerateNonOwnerId(fixture);
 
             // register and login unique users for each role we need to authorize on the endpoint
             List<AuthHelper.ResponseAsObject> loginResponses = new List<AuthHelper.ResponseAsObject>();
@@ -78,7 +87,7 @@ namespace Guests.Tests
             List<AuthHelper.ResponseAsObject> responsesWithAuthHeaders = new List<AuthHelper.ResponseAsObject>();
             foreach (var tokenObject in tokensAsObjects)
             {
-                HttpRequestMessage requestMessage = new HttpRequestMessage(method, endpoint + "/" + nonOwnerId);
+                HttpRequestMessage requestMessage = new HttpRequestMessage(method, endpoint + "/" + NonOwnerId);
                 if (body != null)
                 {
                     requestMessage.Content = JsonHelper.CreatePostContent(body);

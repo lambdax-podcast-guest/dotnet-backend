@@ -14,6 +14,7 @@ namespace Guests.Tests
         public IEnumerator<object[]> GetEnumerator()
         {
             yield return new object[] { "/api/guests", HttpMethod.Get };
+            yield return new object[] { "/api/hosts", HttpMethod.Get };
         }
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }

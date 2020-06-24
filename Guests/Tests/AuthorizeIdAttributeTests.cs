@@ -12,12 +12,15 @@ namespace Guests.Tests
     /// <summary>
     /// Tests for the AuthorizeId attributes. Add your endpoints and methods to the Class Data classes to test those endpoints that are protected by the AuthorizeId attribute for different factors
     /// </summary>
-    public class AuthorizeIdAttributeTests : TestBaseWithFixture, IClassFixture<NonOwnerIdFixture>
+    public class AuthorizeIdAttributeTests : TestBaseWithFixture, IClassFixture<NonOwnerIdFixtureWithUsers>
     {
         public string NonOwnerId;
-        public AuthorizeIdAttributeTests(DatabaseFixture fixture, ITestOutputHelper output, NonOwnerIdFixture nonOwnerIdFixture) : base(fixture, output)
+
+        public Dictionary<string, AuthHelper.TestUser> testUsers;
+        public AuthorizeIdAttributeTests(DatabaseFixture fixture, ITestOutputHelper output, NonOwnerIdFixtureWithUsers NonOwnerIdFixtureWithUsers) : base(fixture, output)
         {
-            NonOwnerId = nonOwnerIdFixture.nonOwnerId;
+            NonOwnerId = NonOwnerIdFixtureWithUsers.nonOwnerId;
+            testUsers = NonOwnerIdFixtureWithUsers.testUsers;
         }
 
         /// <summary>
@@ -40,14 +43,14 @@ namespace Guests.Tests
             }
 
             // send the request with no headers
-            HttpResponseMessage responseWithoutAuthHeaders = await fixture.httpClient.SendAsync(requestMessageNoHeaders);
+            HttpResponseMessage authIdTestResponseWithoutAuthHeaders = await fixture.httpClient.SendAsync(requestMessageNoHeaders);
 
             // assert the request failed
-            responseWithoutAuthHeaders.IsSuccessStatusCode.Should().BeFalse($"because we expect the {method.ToString()} request to the {endpoint} to fail without auth headers");
+            authIdTestResponseWithoutAuthHeaders.IsSuccessStatusCode.Should().BeFalse($"because we expect the {method.ToString()} request to the {endpoint + "/id"} to fail without auth headers");
         }
 
         /// <summary>
-        /// Tests that AuthorizeId allows the provided roles to access the resource
+        /// Tests that AuthorizeId allows the provided roles to access the resource.
         /// </summary>
         /// <param name="endpoint">The endpoint to run the request on</param>
         /// <param name="method">The method to run on the endpoint</param>
@@ -61,31 +64,16 @@ namespace Guests.Tests
             // generate new requests with the tokens on the headers this time
             // whatever roles we passed in are the roles we expect to be authorized
             // use the non owner id since we are testing strictly for roles right now
-
-            // register and login unique users for each role we need to authorize on the endpoint
-            List<AuthHelper.ResponseAsObject> loginResponses = new List<AuthHelper.ResponseAsObject>();
-
-            // The authorizeId attribute should also allow admins to pass so also register an admin
-            HttpResponseMessage adminMessage = await AccountHelper.RegisterUniqueRegisterModel(fixture.httpClient, new string[] { "Admin" });
-            loginResponses.Add(new AuthHelper.ResponseAsObject() { Message = adminMessage, Role = "Admin" });
-
+            // we need to get just the test users that should be able to pass this endpoint
+            List<AuthHelper.TestUser> users = new List<AuthHelper.TestUser>();
             foreach (string role in roles)
             {
-                HttpResponseMessage message = await AccountHelper.RegisterUniqueRegisterModel(fixture.httpClient, new string[] { role });
-                loginResponses.Add(new AuthHelper.ResponseAsObject() { Message = message, Role = role });
+                users.Add(testUsers[role]);
             }
 
-            // deserialize each response and get the tokens
-            List<AuthHelper.TokenAsObject> tokensAsObjects = new List<AuthHelper.TokenAsObject>();
-            foreach (var response in loginResponses)
-            {
-                RegisterOutput registerOutput = await JsonHelper.TryDeserializeJson<RegisterOutput>((HttpResponseMessage) response.Message);
-                tokensAsObjects.Add(new AuthHelper.TokenAsObject() { Token = registerOutput.token, Role = response.Role, Id = registerOutput.id });
-            }
-
-            // send a request to our endpoint with the tokens we just acquired
+            // send a request to our endpoint with the users tokens, but request resources those users do not own in order to check the role based auth
             List<AuthHelper.ResponseAsObject> responsesWithAuthHeaders = new List<AuthHelper.ResponseAsObject>();
-            foreach (var tokenObject in tokensAsObjects)
+            foreach (AuthHelper.TestUser user in users)
             {
                 HttpRequestMessage requestMessage = new HttpRequestMessage(method, endpoint + "/" + NonOwnerId);
                 if (body != null)
@@ -93,17 +81,17 @@ namespace Guests.Tests
                     requestMessage.Content = JsonHelper.CreatePostContent(body);
                 }
                 AuthenticationHeaderValue authHeader;
-                bool isValidHeader = AuthenticationHeaderValue.TryParse($"Bearer {tokenObject.Token}", out authHeader);
+                bool isValidHeader = AuthenticationHeaderValue.TryParse($"Bearer {user.Token}", out authHeader);
                 requestMessage.Headers.Authorization = authHeader;
                 HttpResponseMessage responseWithAuthHeaders = await fixture.httpClient.SendAsync(requestMessage);
-                responsesWithAuthHeaders.Add(new AuthHelper.ResponseAsObject() { Message = responseWithAuthHeaders, Role = tokenObject.Role });
+                responsesWithAuthHeaders.Add(new AuthHelper.ResponseAsObject() { Message = responseWithAuthHeaders, Role = user.Role });
             }
             using(new AssertionScope())
             {
 
-                foreach (var responseWithAuthHeaders in responsesWithAuthHeaders)
+                foreach (var authIdTestResponseWithAuthHeaders in responsesWithAuthHeaders)
                 {
-                    responseWithAuthHeaders.Message.IsSuccessStatusCode.Should().BeTrue($"because we expect the {method.ToString()} request to the {endpoint} to succeed when a/n {responseWithAuthHeaders.Role} is making a request");
+                    authIdTestResponseWithAuthHeaders.Message.IsSuccessStatusCode.Should().BeTrue($"because we expect the {method.ToString()} request to the {endpoint + "/id"} to succeed when a/n {authIdTestResponseWithAuthHeaders.Role} is making a request");
                 }
 
             }

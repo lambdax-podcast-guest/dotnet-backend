@@ -12,13 +12,12 @@ namespace Guests.Tests
 
         }
 
-        public class TokenAsObject
+        public class TestUser
         {
             public string Token { get; set; }
             public string Role { get; set; }
 
             public string Id { get; set; }
-
         }
         public static async Task<string> GenerateNonOwnerId(DatabaseFixture fixture)
         {

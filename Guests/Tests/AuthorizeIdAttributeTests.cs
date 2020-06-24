@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
@@ -77,16 +78,8 @@ namespace Guests.Tests
             List<AuthHelper.ResponseAsObject> responsesWithAuthHeaders = new List<AuthHelper.ResponseAsObject>();
             foreach (AuthHelper.TestUser user in users)
             {
-                HttpRequestMessage requestMessage = new HttpRequestMessage(method, endpoint + "/" + NonOwnerId);
-                if (body != null)
-                {
-                    requestMessage.Content = JsonHelper.CreatePostContent(body);
-                }
-                AuthenticationHeaderValue authHeader;
-                bool isValidHeader = AuthenticationHeaderValue.TryParse($"Bearer {user.Token}", out authHeader);
-                requestMessage.Headers.Authorization = authHeader;
-                HttpResponseMessage responseWithAuthHeaders = await fixture.httpClient.SendAsync(requestMessage);
-                responsesWithAuthHeaders.Add(new AuthHelper.ResponseAsObject() { Message = responseWithAuthHeaders, Role = user.Role });
+                AuthHelper.ResponseAsObject response = await AuthHelper.GenerateAuthIdRequest(endpoint + "/" + NonOwnerId, method, user, fixture, body);
+                responsesWithAuthHeaders.Add(response);
             }
             using(new AssertionScope())
             {
@@ -99,10 +92,10 @@ namespace Guests.Tests
             }
         }
 
-        // public async Task TestAuthorizeIdAllowsOwner()
-        // {
+        public async Task TestAuthorizeIdAllowsOwner()
+        {
 
-        // }
+        }
 
         // public async Task TestAuthorizeIdBlocksNonOwner()
         // {

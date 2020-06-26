@@ -127,7 +127,6 @@ namespace Guests.Controllers
             await _userManager.PopulateRolesAsync(user);
             // Return the saved user with 200 status
             return Ok(user);
-
         }
 
         [AuthorizeId]

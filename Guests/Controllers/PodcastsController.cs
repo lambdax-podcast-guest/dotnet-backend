@@ -58,6 +58,7 @@ namespace Guests.Controllers
                     .Include(p => p.PodcastGuests)
                     .Include(p => p.PodcastHosts)
                     .Include(p => p.PodcastTopics)
+                    .ThenInclude(pt => pt.Topic)
                     // with user as host
                     .Where(p => p.PodcastHosts.Any(ph => ph.HostId == userId) ||
                         // or guest
@@ -73,8 +74,7 @@ namespace Guests.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Podcast>> GetOnePodcast(int id)
         {
-            // get user's id
-            string userId = User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value;
+            if (_context.Podcasts.Find(id) == null) return NotFound();
             try
             {
                 // find podcast matching id
@@ -82,6 +82,7 @@ namespace Guests.Controllers
                     .Include(p => p.PodcastGuests)
                     .Include(p => p.PodcastHosts)
                     .Include(p => p.PodcastTopics)
+                    .ThenInclude(pt => pt.Topic)
                     .FirstAsync(p => p.Id == id);
                 // populate and return match
                 return Ok(match);
